@@ -193,10 +193,10 @@ export class PlayersManagementComponent {
 
   getPositionLabel(pos: string): string {
     switch (pos) {
-      case 'GK': return 'Portero';
-      case 'DF': return 'Defensa';
-      case 'MF': return 'Mediocampista';
-      case 'FW': return 'Delantero';
+      case 'GK': return 'POR';
+      case 'DF': return 'DEF';
+      case 'MF': return 'MC';
+      case 'FW': return 'DEL';
       default: return pos;
     }
   }

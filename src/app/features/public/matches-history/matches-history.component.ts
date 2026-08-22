@@ -57,6 +57,7 @@ export class MatchesHistoryComponent {
   // Expose matches list signal
   matches = this.matchService.matches;
   allPlayersList = this.playerService.players;
+  teamColors = ['Rojo', 'Amarillo', 'Azul', 'Verde', 'Rosado', 'Naranja', 'Blanco', 'Negro'];
 
   // Selected match details state
   selectedMatchDetails = signal<MatchDetails | null>(null);
@@ -67,6 +68,8 @@ export class MatchesHistoryComponent {
   isEditMode = false;
   editScoreA = 0;
   editScoreB = 0;
+  editTeamAColor = 'Verde';
+  editTeamBColor = 'Naranja';
   editTeamA: { player: Player; rating: number; isMvp: boolean; goals: number; assists: number; }[] = [];
   editTeamB: { player: Player; rating: number; isMvp: boolean; goals: number; assists: number; }[] = [];
   editGoals: { id?: string; minute: number; scorerId: string; assistantId?: string | null; scorer?: string; assistant?: string; team?: 'A' | 'B' }[] = [];
@@ -98,6 +101,8 @@ export class MatchesHistoryComponent {
       this.isEditMode = true;
       this.editScoreA = details.match.team_a_score;
       this.editScoreB = details.match.team_b_score;
+      this.editTeamAColor = details.match.team_a_color || 'Verde';
+      this.editTeamBColor = details.match.team_b_color || 'Naranja';
       this.editTeamA = details.teamA.map(p => ({ ...p }));
       this.editTeamB = details.teamB.map(p => ({ ...p }));
       this.editGoals = details.goals.map((g: any) => ({ ...g }));
@@ -113,7 +118,9 @@ export class MatchesHistoryComponent {
 
       const matchUpdates: Partial<Match> = {
         team_a_score: this.editScoreA,
-        team_b_score: this.editScoreB
+        team_b_score: this.editScoreB,
+        team_a_color: this.editTeamAColor,
+        team_b_color: this.editTeamBColor
       };
 
       const playersToSave: MatchPlayer[] = [];

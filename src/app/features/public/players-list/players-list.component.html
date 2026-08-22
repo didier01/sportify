@@ -93,20 +93,22 @@
 
   <!-- Leaderboard Table -->
   <nz-card class="table-card">
-    <nz-table #statsTable [nzData]="filteredStats()" [nzPageSize]="15" [nzLoading]="false" [nzScroll]="{ x: 'auto' }"
+    <nz-table #statsTable [nzData]="filteredStats()" [nzPageSize]="25" [nzLoading]="false" [nzScroll]="{ x: '600px' }"
       class="dark-themed-table">
       <thead>
         <tr>
-          <th nzWidth="60px" style="text-align: center;">Pos</th>
-          <th nzWidth="100px">Jugador</th>
-          <th nzWidth="120px" class="hide-on-mobile">Posición</th>
-          <th nzWidth="60px" *ngIf="selectedMatchId() === 'ALL'" style="text-align: center;">PJ</th>
-          <th nzWidth="60px" style="text-align: center; color: var(--warning-color);">G</th>
-          <th nzWidth="60px" style="text-align: center; color: var(--primary-color);">A</th>
-          <th nzWidth="70px" style="text-align: center; font-weight: bold;">G+A</th>
-          <th nzWidth="120px" *ngIf="selectedMatchId() === 'ALL'" style="text-align: center;" class="hide-on-mobile">Win
-            Rate (%)</th>
-          <th nzWidth="130px" style="text-align: center;">Rating Promedio</th>
+          <th nzWidth="60px" style="text-align: center;">#</th>
+          <th nzWidth="80px" [nzSortFn]="sortByName">Jugador</th>
+          <th nzWidth="50px">Pos</th>
+          <th nzWidth="50px" *ngIf="selectedMatchId() === 'ALL'" style="text-align: center;" [nzSortFn]="sortByMatches">
+            PJ</th>
+          <th nzWidth="50px" style="text-align: center; color: var(--warning-color);" [nzSortFn]="sortByGoals">G</th>
+          <th nzWidth="50px" style="text-align: center; color: var(--primary-color);" [nzSortFn]="sortByAssists">A</th>
+          <th nzWidth="60px" style="text-align: center; font-weight: bold;" [nzSortFn]="sortByGA" nzSortOrder="descend">
+            G+A</th>
+          <th nzWidth="120px" *ngIf="selectedMatchId() === 'ALL'" style="text-align: center;"
+            [nzSortFn]="sortByWinRate">% Vict.</th>
+          <th nzWidth="130px" style="text-align: center;" [nzSortFn]="sortByRating">Promedio</th>
         </tr>
       </thead>
       <tbody>
@@ -117,10 +119,10 @@
           <td>
             <div class="player-identity">
               <span class="nickname">{{ data.nickname }}</span>
-              <span class="full-name" *ngIf="data.name && data.name !== data.nickname">{{ data.name }}</span>
+              <!-- <span class="full-name" *ngIf="data.name && data.name !== data.nickname">{{ data.name }}</span> -->
             </div>
           </td>
-          <td class="hide-on-mobile">
+          <td>
             <nz-tag [nzColor]="getPositionColor(data.preferred_position)">
               {{ getPositionLabel(data.preferred_position) }}
             </nz-tag>
@@ -129,7 +131,7 @@
           <td style="text-align: center; font-weight: 500; color: var(--warning-color);">{{ data.goals }}</td>
           <td style="text-align: center; font-weight: 500; color: var(--primary-color);">{{ data.assists }}</td>
           <td style="text-align: center; font-weight: bold;">{{ data.goals + data.assists }}</td>
-          <td *ngIf="selectedMatchId() === 'ALL'" style="text-align: center;" class="hide-on-mobile">
+          <td *ngIf="selectedMatchId() === 'ALL'" style="text-align: center;">
             <div class="win-rate-indicator">
               <span>{{ data.win_rate.toFixed(1) }}%</span>
               <div class="progress-bar-bg">
@@ -188,6 +190,25 @@
               <span class="val highlight-win">{{ player.win_rate }}%</span>
             </div>
           </div>
+
+          <div nz-col nzSpan="8">
+            <div class="stat-box">
+              <span class="lbl">Victorias</span>
+              <span class="val highlight-win">{{ getPlayerWins() }}</span>
+            </div>
+          </div>
+          <div nz-col nzSpan="8">
+            <div class="stat-box">
+              <span class="lbl">Empates</span>
+              <span class="val" style="color: var(--text-muted);">{{ getPlayerDraws() }}</span>
+            </div>
+          </div>
+          <div nz-col nzSpan="8">
+            <div class="stat-box">
+              <span class="lbl">Derrotas</span>
+              <span class="val" style="color: var(--error-color);">{{ getPlayerLosses() }}</span>
+            </div>
+          </div>
           <div nz-col nzSpan="8">
             <div class="stat-box">
               <span class="lbl">Goles</span>
@@ -206,6 +227,7 @@
               <span class="val">{{ player.goals + player.assists }}</span>
             </div>
           </div>
+
           <div nz-col nzSpan="24">
             <div class="stat-box rating-box">
               <span class="lbl">Calificación Promedio</span>
@@ -226,9 +248,16 @@
           <div class="timeline-item" *ngFor="let item of playerHistory()">
             <div class="item-header">
               <span class="date">{{ item.match.date | date:'dd MMM yyyy' }}</span>
-              <nz-tag [nzColor]="item.team === 'A' ? 'success' : 'warning'">
-                {{ item.team === 'A' ? 'Verde' : 'Naranja' }}
-              </nz-tag>
+              <div class="header-tags" style="display: flex; gap: 4px;">
+                <nz-tag [nzColor]="getResultColor(getMatchResult(item))">
+                  {{ getMatchResult(item) === 'W' ? 'Victoria' : (getMatchResult(item) === 'L' ? 'Derrota' : 'Empate')
+                  }}
+                </nz-tag>
+                <nz-tag class="solid-tag"
+                  [ngStyle]="{'--tag-bg': getTeamHexColor(getTeamColorName(item)), 'color': getTeamColorName(item).toLowerCase() === 'blanco' ? '#000' : '#fff'}">
+                  {{ getTeamColorName(item) }}
+                </nz-tag>
+              </div>
             </div>
 
             <div class="item-body">

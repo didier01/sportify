@@ -1,3 +1,14 @@
+$team-colors: (
+  rojo: #ef4444,
+  amarillo: #eab308,
+  azul: #3b82f6,
+  verde: var(--primary-color),
+  rosado: #ec4899,
+  naranja: #f97316,
+  blanco: #ffffff,
+  negro: #1f2937
+);
+
 .history-container {
   padding: var(--spacing-xl);
   max-width: 1200px;
@@ -75,14 +86,18 @@
             font-family: var(--font-family-heading);
           }
 
-          &.team-verde {
+          &:first-of-type {
             justify-content: flex-end;
-            color: var(--primary-color);
           }
 
-          &.team-naranja {
+          &:last-of-type {
             justify-content: flex-start;
-            color: #f97316;
+          }
+
+          @each $name, $color in $team-colors {
+            &.team-#{$name} {
+              color: $color;
+            }
           }
         }
       }
@@ -190,12 +205,10 @@
         }
       }
 
-      &.block-verde {
-        color: var(--primary-color);
-      }
-
-      &.block-naranja {
-        color: #f97316;
+      @each $name, $color in $team-colors {
+        &.block-#{$name} {
+          color: $color;
+        }
       }
     }
   }
@@ -340,19 +353,16 @@
       }
     }
 
-    &.lineup-verde {
-      border-color: var(--primary-color);
+    @each $name, $color in $team-colors {
+      &.lineup-#{$name} {
+        border-color: $color;
 
-      .lineup-title {
-        background-color: var(--primary-color);
-      }
-    }
-
-    &.lineup-naranja {
-      border-color: #f97316;
-
-      .lineup-title {
-        background-color: #f97316;
+        .lineup-title {
+          background-color: $color;
+          @if $name == 'blanco' {
+            color: #000;
+          }
+        }
       }
     }
   }
@@ -372,12 +382,13 @@
       color: var(--text-inverse);
       text-transform: uppercase;
 
-      &.team-verde {
-        background-color: var(--primary-color);
-      }
-
-      &.team-naranja {
-        background-color: #f97316;
+      @each $name, $color in $team-colors {
+        &.team-#{$name} {
+          background-color: $color;
+          @if $name == 'blanco' {
+            color: #000;
+          }
+        }
       }
     }
   }

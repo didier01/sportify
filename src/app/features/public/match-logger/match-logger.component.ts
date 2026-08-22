@@ -233,10 +233,10 @@ export class MatchLoggerComponent {
 
   getPositionLabel(pos: string): string {
     switch (pos) {
-      case 'GK': return 'Portero';
-      case 'DF': return 'Defensa';
-      case 'MF': return 'Mediocampista';
-      case 'FW': return 'Delantero';
+      case 'GK': return 'POR';
+      case 'DF': return 'DEF';
+      case 'MF': return 'MC';
+      case 'FW': return 'DEL';
       default: return pos;
     }
   }
@@ -268,6 +268,8 @@ export class MatchLoggerComponent {
       youtube_url: this.youtubeUrl || undefined,
       team_a_score: this.teamAScore,
       team_b_score: this.teamBScore,
+      team_a_color: this.teamAName,
+      team_b_color: this.teamBName,
       notes: this.matchNotes || undefined
     };
 

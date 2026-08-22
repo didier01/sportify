@@ -8,6 +8,8 @@ export interface Match {
   youtube_url?: string;
   team_a_score: number;
   team_b_score: number;
+  team_a_color?: string;
+  team_b_color?: string;
   notes?: string;
   created_at?: string;
 }

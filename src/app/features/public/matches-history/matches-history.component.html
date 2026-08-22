@@ -18,14 +18,14 @@
 
         <div class="card-body">
           <div class="score-display">
-            <div class="team team-verde">
-              <span class="name">Verde</span>
+            <div class="team" [ngClass]="'team-' + (match.team_a_color ? match.team_a_color.toLowerCase() : 'verde')">
+              <span class="name">{{ match.team_a_color || 'Verde' }}</span>
               <span class="goals">{{ match.team_a_score }}</span>
             </div>
             <div class="vs">vs</div>
-            <div class="team team-naranja">
+            <div class="team" [ngClass]="'team-' + (match.team_b_color ? match.team_b_color.toLowerCase() : 'naranja')">
               <span class="goals">{{ match.team_b_score }}</span>
-              <span class="name">Naranja</span>
+              <span class="name">{{ match.team_b_color || 'Naranja' }}</span>
             </div>
           </div>
         </div>
@@ -67,14 +67,24 @@
 
         <!-- Scoreboard Header -->
         <div class="scoreboard-header">
-          <div class="score-block block-verde">
-            <h4>EQUIPO VERDE</h4>
+          <div class="score-block" [ngClass]="'block-' + (details.match.team_a_color ? details.match.team_a_color.toLowerCase() : 'verde')">
+            <h4 *ngIf="!isEditMode">EQUIPO {{ (details.match.team_a_color || 'Verde') | uppercase }}</h4>
+            <div *ngIf="isEditMode" style="margin-bottom: 8px;">
+              <nz-select [(ngModel)]="editTeamAColor" style="width: 120px;">
+                <nz-option *ngFor="let color of teamColors" [nzValue]="color" [nzLabel]="color"></nz-option>
+              </nz-select>
+            </div>
             <span class="score-num" *ngIf="!isEditMode">{{ details.match.team_a_score }}</span>
             <nz-input-number *ngIf="isEditMode" [(ngModel)]="editScoreA" [nzMin]="0"></nz-input-number>
           </div>
           <div class="vs-text">VS</div>
-          <div class="score-block block-naranja">
-            <h4>EQUIPO NARANJA</h4>
+          <div class="score-block" [ngClass]="'block-' + (details.match.team_b_color ? details.match.team_b_color.toLowerCase() : 'naranja')">
+            <h4 *ngIf="!isEditMode">EQUIPO {{ (details.match.team_b_color || 'Naranja') | uppercase }}</h4>
+            <div *ngIf="isEditMode" style="margin-bottom: 8px;">
+              <nz-select [(ngModel)]="editTeamBColor" style="width: 120px;">
+                <nz-option *ngFor="let color of teamColors" [nzValue]="color" [nzLabel]="color"></nz-option>
+              </nz-select>
+            </div>
             <span class="score-num" *ngIf="!isEditMode">{{ details.match.team_b_score }}</span>
             <nz-input-number *ngIf="isEditMode" [(ngModel)]="editScoreB" [nzMin]="0"></nz-input-number>
           </div>
@@ -108,8 +118,8 @@
         <div nz-row [nzGutter]="24">
           <!-- Team A Lineup -->
           <div nz-col [nzXs]="24" [nzSm]="12">
-            <div class="lineup-box lineup-verde">
-              <h4 class="lineup-title">Equipo Verde</h4>
+            <div class="lineup-box" [ngClass]="'lineup-' + (details.match.team_a_color ? details.match.team_a_color.toLowerCase() : 'verde')">
+              <h4 class="lineup-title">Equipo {{ details.match.team_a_color || 'Verde' }}</h4>
               <div class="lineup-list">
                 <div class="lineup-row" *ngFor="let item of (isEditMode ? editTeamA : details.teamA)"
                   [class.is-mvp]="item.isMvp">
@@ -131,8 +141,8 @@
 
           <!-- Team B Lineup -->
           <div nz-col [nzXs]="24" [nzSm]="12">
-            <div class="lineup-box lineup-naranja">
-              <h4 class="lineup-title">Equipo Naranja</h4>
+            <div class="lineup-box" [ngClass]="'lineup-' + (details.match.team_b_color ? details.match.team_b_color.toLowerCase() : 'naranja')">
+              <h4 class="lineup-title">Equipo {{ details.match.team_b_color || 'Naranja' }}</h4>
               <div class="lineup-list">
                 <div class="lineup-row" *ngFor="let item of (isEditMode ? editTeamB : details.teamB)"
                   [class.is-mvp]="item.isMvp">
@@ -160,7 +170,7 @@
           <div nz-row [nzGutter]="24" class="goals-timeline-container" *ngIf="editGoals.length > 0">
             <!-- Team A Goals -->
             <div nz-col [nzXs]="12">
-              <h4 class="timeline-team-title team-verde">Goles Verde</h4>
+              <h4 class="timeline-team-title" [ngClass]="'team-' + (details.match.team_a_color ? details.match.team_a_color.toLowerCase() : 'verde')">Goles {{ details.match.team_a_color || 'Verde' }}</h4>
               <div class="goals-timeline-list">
                 <ng-container *ngFor="let goal of editGoals; let i = index">
                   <div class="timeline-goal-item edit-goal-item" *ngIf="goal.team === 'A'">
@@ -193,7 +203,7 @@
 
             <!-- Team B Goals -->
             <div nz-col [nzXs]="12">
-              <h4 class="timeline-team-title team-naranja">Goles Naranja</h4>
+              <h4 class="timeline-team-title" [ngClass]="'team-' + (details.match.team_b_color ? details.match.team_b_color.toLowerCase() : 'naranja')">Goles {{ details.match.team_b_color || 'Naranja' }}</h4>
               <div class="goals-timeline-list">
                 <ng-container *ngFor="let goal of editGoals; let i = index">
                   <div class="timeline-goal-item edit-goal-item" *ngIf="goal.team === 'B'">

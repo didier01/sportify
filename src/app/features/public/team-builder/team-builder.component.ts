@@ -13,6 +13,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzInputModule } from 'ng-zorro-antd/input';
 
 interface TeamCombination {
   teamA: Player[];
@@ -36,7 +37,8 @@ interface TeamCombination {
     NzIconModule,
     NzTagModule,
     NzDividerModule,
-    NzAlertModule
+    NzAlertModule,
+    NzInputModule
   ],
   templateUrl: './team-builder.component.html',
   styleUrls: ['./team-builder.component.scss']
@@ -45,10 +47,22 @@ export class TeamBuilderComponent {
   private playerService = inject(PlayerService);
   private message = inject(NzMessageService);
 
+  // Filter signal
+  searchQuery = signal<string>('');
+
   // Active players list
-  activePlayers = computed(() =>
-    this.playerService.players().filter(p => p.is_active)
-  );
+  activePlayers = computed(() => {
+    const query = this.searchQuery().toLowerCase().trim();
+    let list = this.playerService.players().filter(p => p.is_active);
+    
+    if (query) {
+      list = list.filter(p => 
+        p.nickname.toLowerCase().includes(query) || 
+        (p.name && p.name.toLowerCase().includes(query))
+      );
+    }
+    return list;
+  });
 
   // Selected players map: { [id: string]: boolean }
   selectedPlayersMap = signal<{ [id: string]: boolean }>({});
@@ -265,10 +279,10 @@ export class TeamBuilderComponent {
 
   getPositionLabel(pos: string): string {
     switch (pos) {
-      case 'GK': return 'GK';
-      case 'DF': return 'DF';
-      case 'MF': return 'MF';
-      case 'FW': return 'FW';
+      case 'GK': return 'POR';
+      case 'DF': return 'DEF';
+      case 'MF': return 'MC';
+      case 'FW': return 'DEL';
       default: return pos;
     }
   }

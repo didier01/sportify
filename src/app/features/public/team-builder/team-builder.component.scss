@@ -13,6 +13,10 @@
     box-shadow: var(--shadow-md);
     border: 1px solid var(--border-color);
 
+    @media (max-width: 992px) {
+      margin-bottom: 1rem;
+    }
+
     .card-header-flex {
       display: flex;
       justify-content: space-between;
@@ -47,7 +51,9 @@
     .players-selection-list {
       max-height: 520px;
       overflow-y: auto;
-      padding-right: 4px;
+      overflow-x: hidden;
+      padding-right: 8px;
+      padding-top: 8px;
 
       .player-select-item {
         display: flex;
@@ -75,10 +81,15 @@
           display: flex;
           align-items: center;
           gap: var(--spacing-sm);
+          flex: 1;
+          min-width: 0;
 
           .player-name {
             font-weight: 600;
             font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
         }
 
@@ -88,6 +99,7 @@
           gap: var(--spacing-md);
           font-weight: 500;
           color: var(--text-muted);
+          flex-shrink: 0;
         }
       }
     }
@@ -126,7 +138,13 @@
             border-color: var(--primary-color) !important;
             color: var(--text-inverse) !important;
           }
+
+          @media (max-width: 768px) {
+            flex: none;
+          }
         }
+
+
       }
     }
 

@@ -224,12 +224,21 @@ export class PlayersListComponent implements OnInit {
     this.playerHistory.set([]);
   }
 
+  // Sorting functions for ng-zorro
+  sortByName = (a: PlayerStats, b: PlayerStats) => a.nickname.localeCompare(b.nickname);
+  sortByMatches = (a: PlayerStats, b: PlayerStats) => a.matches_played - b.matches_played;
+  sortByGoals = (a: PlayerStats, b: PlayerStats) => a.goals - b.goals;
+  sortByAssists = (a: PlayerStats, b: PlayerStats) => a.assists - b.assists;
+  sortByGA = (a: PlayerStats, b: PlayerStats) => (a.goals + a.assists) - (b.goals + b.assists);
+  sortByWinRate = (a: PlayerStats, b: PlayerStats) => a.win_rate - b.win_rate;
+  sortByRating = (a: PlayerStats, b: PlayerStats) => a.average_rating - b.average_rating;
+
   getPositionLabel(pos: string): string {
     switch (pos) {
-      case 'GK': return 'Portero';
-      case 'DF': return 'Defensa';
-      case 'MF': return 'Mediocampista';
-      case 'FW': return 'Delantero';
+      case 'GK': return 'POR';
+      case 'DF': return 'DEF';
+      case 'MF': return 'MC';
+      case 'FW': return 'DEL';
       default: return pos;
     }
   }
@@ -242,5 +251,51 @@ export class PlayersListComponent implements OnInit {
       case 'FW': return 'magenta';
       default: return 'default';
     }
+  }
+
+  getMatchResult(item: PlayerMatchHistory): 'W' | 'L' | 'D' {
+    const { match, team } = item;
+    if (match.team_a_score === match.team_b_score) return 'D';
+    if (team === 'A' && match.team_a_score > match.team_b_score) return 'W';
+    if (team === 'B' && match.team_b_score > match.team_a_score) return 'W';
+    return 'L';
+  }
+
+  getPlayerWins(): number {
+    return this.playerHistory().filter(h => this.getMatchResult(h) === 'W').length;
+  }
+
+  getPlayerLosses(): number {
+    return this.playerHistory().filter(h => this.getMatchResult(h) === 'L').length;
+  }
+
+  getPlayerDraws(): number {
+    return this.playerHistory().filter(h => this.getMatchResult(h) === 'D').length;
+  }
+
+  getTeamColorName(item: PlayerMatchHistory): string {
+    return item.team === 'A' 
+      ? (item.match.team_a_color || 'Verde') 
+      : (item.match.team_b_color || 'Naranja');
+  }
+
+  getResultColor(result: 'W' | 'L' | 'D'): string {
+    if (result === 'W') return 'success';
+    if (result === 'L') return 'error';
+    return 'default';
+  }
+
+  getTeamHexColor(colorName: string): string {
+    const colors: Record<string, string> = {
+      rojo: '#ef4444',
+      amarillo: '#eab308',
+      azul: '#3b82f6',
+      verde: '#10b981',
+      rosado: '#ec4899',
+      naranja: '#f97316',
+      blanco: '#ffffff',
+      negro: '#1f2937'
+    };
+    return colors[colorName.toLowerCase()] || '#10b981';
   }
 }

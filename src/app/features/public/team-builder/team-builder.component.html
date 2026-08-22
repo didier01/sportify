@@ -4,7 +4,7 @@
     <p>Selecciona los convocados y genera emparejamientos equitativos al instante.</p>
   </div>
 
-  <div nz-row [nzGutter]="24">
+  <div nz-row [nzGutter]="16">
     <!-- Left Column: Player Selection -->
     <div nz-col [nzXs]="24" [nzLg]="10">
       <nz-card [nzTitle]="selectorTitle" class="selection-card">
@@ -19,13 +19,19 @@
           </div>
         </ng-template>
 
+        <div style="padding: 12px 0; border-bottom: 1px solid var(--border-color); background-color: var(--bg-card);">
+          <nz-input-group [nzSuffix]="suffixIconSearch">
+            <input type="text" nz-input placeholder="Buscar jugador..." [ngModel]="searchQuery()"
+              (ngModelChange)="searchQuery.set($event)" />
+          </nz-input-group>
+          <ng-template #suffixIconSearch>
+            <nz-icon nzType="search" style="color: var(--text-muted)" />
+          </ng-template>
+        </div>
+
         <div class="players-selection-list">
-          <div 
-            *ngFor="let player of activePlayers()" 
-            class="player-select-item"
-            [class.selected]="selectedPlayersMap()[player.id]"
-            (click)="togglePlayer(player.id)"
-          >
+          <div *ngFor="let player of activePlayers()" class="player-select-item"
+            [class.selected]="selectedPlayersMap()[player.id]" (click)="togglePlayer(player.id)">
             <div class="player-select-info">
               <span class="player-name">{{ player.nickname }}</span>
               <nz-tag [nzColor]="getPositionColor(player.preferred_position)">
@@ -34,12 +40,8 @@
             </div>
             <div class="player-select-rating">
               <span>★ {{ getPlayerRating(player).toFixed(1) }}</span>
-              <label 
-                nz-checkbox 
-                [ngModel]="selectedPlayersMap()[player.id]"
-                (ngModelChange)="togglePlayer(player.id)"
-                (click)="$event.stopPropagation()"
-              ></label>
+              <label nz-checkbox [ngModel]="selectedPlayersMap()[player.id]" (ngModelChange)="togglePlayer(player.id)"
+                (click)="$event.stopPropagation()"></label>
             </div>
           </div>
         </div>
@@ -51,45 +53,27 @@
       <nz-card nzTitle="Configuración del Balanceo" class="control-card">
         <div class="settings-group">
           <label class="control-label">Estrategia de Balanceo</label>
-          <nz-radio-group 
-            [ngModel]="balanceMode()" 
-            (ngModelChange)="balanceMode.set($event)" 
-            nzButtonStyle="solid"
-            class="mode-selector"
-          >
-            <label nz-radio-button nzValue="HYBRID">Híbrido (Recomendado)</label>
+          <nz-radio-group [ngModel]="balanceMode()" (ngModelChange)="balanceMode.set($event)" nzButtonStyle="solid"
+            class="mode-selector">
+            <label nz-radio-button nzValue="HYBRID">Híbrido</label>
             <label nz-radio-button nzValue="NUMERIC">Solo Nivel</label>
             <label nz-radio-button nzValue="POSITIONAL">Solo Posiciones</label>
           </nz-radio-group>
         </div>
 
-        <button 
-          nz-button 
-          nzType="primary" 
-          nzBlock 
-          (click)="generateTeams()" 
-          [disabled]="selectedCount() < 4"
-          class="generate-btn"
-        >
+        <button nz-button nzType="primary" nzBlock (click)="generateTeams()" [disabled]="selectedCount() < 4"
+          class="generate-btn">
           <nz-icon nzType="setting"></nz-icon> Balancear y Crear Equipos
         </button>
 
         <!-- Output Suggestions if available -->
         <div *ngIf="suggestions().length > 0; else noCombo" class="results-section">
           <nz-divider nzText="Opciones Generadas"></nz-divider>
-          
+
           <div class="suggestions-tabs">
-            <nz-radio-group 
-              [ngModel]="selectedSuggestionIndex()" 
-              (ngModelChange)="selectedSuggestionIndex.set($event)"
-              nzButtonStyle="solid"
-              class="suggestion-selector"
-            >
-              <label 
-                nz-radio-button 
-                *ngFor="let sug of suggestions(); let idx = index" 
-                [nzValue]="idx"
-              >
+            <nz-radio-group [ngModel]="selectedSuggestionIndex()" (ngModelChange)="selectedSuggestionIndex.set($event)"
+              nzButtonStyle="solid" class="suggestion-selector">
+              <label nz-radio-button *ngFor="let sug of suggestions(); let idx = index" [nzValue]="idx">
                 {{ getSuggestionTitle(idx) }} (Dif: {{ sug.ratingDiff.toFixed(1) }})
               </label>
             </nz-radio-group>
@@ -139,13 +123,9 @@
 
         <ng-template #noCombo>
           <div class="empty-results">
-            <nz-alert
-              nzType="info"
-              nzMessage="Esperando Convocatoria"
+            <nz-alert nzType="info" nzMessage="Esperando Convocatoria"
               nzDescription="Selecciona los jugadores del partido y haz clic en el botón para balancear los equipos."
-              nzShowIcon
-              class="custom-alert"
-            ></nz-alert>
+              nzShowIcon class="custom-alert"></nz-alert>
           </div>
         </ng-template>
       </nz-card>
