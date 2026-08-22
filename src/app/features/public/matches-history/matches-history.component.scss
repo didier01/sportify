@@ -184,6 +184,10 @@
         font-size: 3rem;
         font-weight: 900;
         font-family: var(--font-family-heading);
+
+        @media (max-width: 768px) {
+          font-size: 1.8rem;
+        }
       }
 
       &.block-verde {

@@ -507,6 +507,14 @@ h6 {
   color: var(--text-main) !important;
 }
 
+.table-card .ant-card-body {
+  padding: 0 !important;
+}
+
+.ant-table-pagination.ant-pagination {
+  margin: 16px 16px;
+}
+
 
 .ant-input-affix-wrapper {
   background-color: var(--bg-input);
@@ -578,5 +586,14 @@ h6 {
 
   p {
     font-size: clamp(0.85rem, 2vw, 1.5rem) !important;
+  }
+
+  .ant-table tfoot>tr>td,
+  .ant-table tfoot>tr>th,
+  .ant-table-tbody>tr>td,
+  .ant-table-thead>tr>th {
+    position: relative;
+    padding: 5px 5px;
+    overflow-wrap: break-word;
   }
 }
