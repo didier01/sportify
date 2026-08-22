@@ -1,0 +1,31 @@
+<div class="login-container">
+  <nz-card nzTitle="Acceso Administrador" class="login-card">
+    <form nz-form (ngSubmit)="onSubmit()" nzLayout="vertical">
+      
+      <nz-form-item>
+        <nz-form-label nzRequired>Correo Electrónico</nz-form-label>
+        <nz-form-control nzErrorTip="Por favor ingresa tu correo">
+          <nz-input-group [nzPrefix]="prefixUser">
+            <input type="text" nz-input [(ngModel)]="email" name="email" placeholder="admin@ejemplo.com" />
+          </nz-input-group>
+          <ng-template #prefixUser><span nz-icon nzType="user"></span></ng-template>
+        </nz-form-control>
+      </nz-form-item>
+      
+      <nz-form-item>
+        <nz-form-label nzRequired>Contraseña</nz-form-label>
+        <nz-form-control nzErrorTip="Por favor ingresa tu contraseña">
+          <nz-input-group [nzPrefix]="prefixLock">
+            <input type="password" nz-input [(ngModel)]="password" name="password" placeholder="Contraseña" />
+          </nz-input-group>
+          <ng-template #prefixLock><span nz-icon nzType="lock"></span></ng-template>
+        </nz-form-control>
+      </nz-form-item>
+      
+      <button nz-button nzType="primary" nzBlock [nzLoading]="isLoading()" [disabled]="!email() || !password()">
+        Ingresar
+      </button>
+
+    </form>
+  </nz-card>
+</div>

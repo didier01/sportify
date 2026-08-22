@@ -444,27 +444,103 @@ h6 {
     background-color: var(--bg-card) !important;
     border: 1px solid var(--border-color) !important;
   }
+
   .ant-modal-header {
     background-color: var(--bg-card) !important;
     border-bottom: 1px solid var(--border-color) !important;
   }
+
   .ant-modal-body {
     color: var(--text-main) !important;
-    
+
     .ant-divider-inner-text {
       color: var(--text-main) !important;
     }
   }
+
   .ant-modal-title {
     color: var(--text-main) !important;
   }
+
   .ant-modal-close-icon {
     color: var(--text-muted) !important;
   }
+
   .ant-modal-close:hover .ant-modal-close-icon {
     color: var(--text-main) !important;
   }
+
   .ant-modal-footer {
     border-top: 1px solid var(--border-color) !important;
+  }
+}
+
+/* Drawer Global Dark Styling */
+.ant-drawer-content,
+.ant-drawer-content-wrapper,
+.ant-drawer-wrapper-body,
+.ant-drawer-body {
+  background-color: var(--bg-card) !important;
+  color: var(--text-main) !important;
+}
+
+.ant-drawer-header {
+  background-color: var(--bg-card) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  
+  .ant-drawer-title {
+    color: var(--text-main) !important;
+    font-family: var(--font-family-heading) !important;
+    font-weight: 700 !important;
+  }
+}
+
+.ant-drawer-close {
+  color: var(--text-muted) !important;
+  &:hover {
+    color: var(--text-main) !important;
+  }
+}
+
+.ant-divider-inner-text {
+  color: var(--text-main) !important;
+}
+
+
+.ant-input-affix-wrapper {
+  background-color: var(--bg-input);
+  border-color: var(--border-color);
+  border-radius: var(--border-radius-sm);
+
+  .ant-input {
+    background-color: transparent !important;
+    color: var(--text-main) !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+
+    &:focus, &:hover, &:active {
+      border: none !important;
+      box-shadow: none !important;
+      outline: none !important;
+    }
+
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus,
+    &:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 30px var(--bg-input) inset !important;
+      -webkit-text-fill-color: var(--text-main) !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+  }
+
+  .anticon {
+    color: var(--text-muted);
+  }
+
+  &:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-color-outline);
   }
 }

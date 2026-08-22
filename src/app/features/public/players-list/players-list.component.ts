@@ -114,7 +114,7 @@ export class PlayersListComponent implements OnInit {
   isDrawerVisible = false;
   selectedPlayerDetails = signal<PlayerStats | null>(null);
   playerHistory = signal<PlayerMatchHistory[]>([]);
-  isLoadingHistory = false;
+  isLoadingHistory = signal(false);
 
   private matchService = inject(MatchService);
 
@@ -180,7 +180,7 @@ export class PlayersListComponent implements OnInit {
   async openPlayerDrawer(stats: PlayerStats): Promise<void> {
     this.selectedPlayerDetails.set(stats);
     this.isDrawerVisible = true;
-    this.isLoadingHistory = true;
+    this.isLoadingHistory.set(true);
 
     try {
       const allMatches = this.matchService.matches();
@@ -214,7 +214,7 @@ export class PlayersListComponent implements OnInit {
     } catch (e) {
       console.error(e);
     } finally {
-      this.isLoadingHistory = false;
+      this.isLoadingHistory.set(false);
     }
   }
 

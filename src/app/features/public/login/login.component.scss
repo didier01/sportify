@@ -1,0 +1,62 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 100px);
+  padding: 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  border-radius: var(--border-radius-base);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+
+  ::ng-deep {
+    .ant-card-head {
+      border-bottom: 1px solid var(--border-color);
+      .ant-card-head-title {
+        color: var(--text-main);
+        font-family: var(--font-family-heading);
+        font-size: 1.25rem;
+      }
+    }
+    
+    .ant-form-item-label > label {
+      color: var(--text-main);
+    }
+    
+    .ant-input-affix-wrapper {
+      background-color: var(--bg-input);
+      border-color: var(--border-color);
+      border-radius: var(--border-radius-sm);
+      
+      .ant-input {
+        background-color: transparent !important;
+        color: var(--text-main) !important;
+        border: none !important;
+        box-shadow: none !important;
+        
+        &:-webkit-autofill,
+        &:-webkit-autofill:hover, 
+        &:-webkit-autofill:focus, 
+        &:-webkit-autofill:active{
+            -webkit-box-shadow: 0 0 0 30px var(--bg-input) inset !important;
+            -webkit-text-fill-color: var(--text-main) !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+      }
+      
+      .anticon {
+        color: var(--text-muted);
+      }
+      
+      &:focus-within {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px var(--primary-color-outline);
+      }
+    }
+  }
+}

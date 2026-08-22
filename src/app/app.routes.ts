@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -7,6 +8,7 @@ export const routes: Routes = [
   },
   {
     path: 'players',
+    canActivate: [adminGuard],
     loadComponent: () => import('./features/public/players-management/players-management.component').then(m => m.PlayersManagementComponent)
   },
   {
@@ -15,7 +17,12 @@ export const routes: Routes = [
   },
   {
     path: 'log-match',
+    canActivate: [adminGuard],
     loadComponent: () => import('./features/public/match-logger/match-logger.component').then(m => m.MatchLoggerComponent)
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./features/public/login/login.component').then(m => m.LoginComponent)
   },
   {
     path: 'matches',

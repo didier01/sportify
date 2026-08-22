@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatchService, Match, MatchPlayer, MatchEvent } from '../../../core/services/match.service';
 import { PlayerService, Player } from '../../../core/services/player.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -51,6 +52,7 @@ export class MatchesHistoryComponent {
   private playerService = inject(PlayerService);
   private modal = inject(NzModalService);
   private msg = inject(NzMessageService);
+  authService = inject(AuthService); // Inyectamos como public para el template
 
   // Expose matches list signal
   matches = this.matchService.matches;

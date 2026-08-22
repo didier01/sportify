@@ -253,7 +253,7 @@ export class TeamBuilderComponent {
     });
 
     text += `\n_Diferencia de rating: ${combo.ratingDiff.toFixed(1)}_\n`;
-    text += `_Generado con FutStats_ 🚀`;
+    text += `_Generado con SPORT-TIFY_ 🚀`;
 
     navigator.clipboard.writeText(text).then(() => {
       this.message.success('Copiado al portapapeles. Listo para WhatsApp.');

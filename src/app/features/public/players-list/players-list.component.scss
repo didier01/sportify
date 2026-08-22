@@ -233,29 +233,6 @@
   }
 }
 
-/* Custom Drawer Dark Styling */
-::ng-deep .dark-drawer {
-  .ant-drawer-content {
-    background-color: var(--bg-card) !important;
-    color: var(--text-main) !important;
-    border-left: 1px solid var(--border-color);
-  }
-
-  .ant-drawer-header {
-    background-color: var(--bg-card) !important;
-    border-bottom: 1px solid var(--border-color);
-    
-    .ant-drawer-title {
-      color: var(--text-main) !important;
-      font-family: var(--font-family-heading);
-      font-weight: 700;
-    }
-  }
-
-  .ant-drawer-close {
-    color: var(--text-muted) !important;
-  }
-}
 
 .drawer-profile-container {
   display: flex;

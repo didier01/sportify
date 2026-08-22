@@ -232,12 +232,12 @@
         <!-- Match History Timeline -->
         <nz-divider nzText="Historial de Partidos"></nz-divider>
 
-        <div *ngIf="isLoadingHistory" class="drawer-loading">
+        <div *ngIf="isLoadingHistory()" class="drawer-loading">
           <nz-spin nzSimple></nz-spin>
           <p style="margin-top: 8px; color: var(--text-muted);">Cargando historial...</p>
         </div>
 
-        <div *ngIf="!isLoadingHistory" class="drawer-history-timeline">
+        <div *ngIf="!isLoadingHistory()" class="drawer-history-timeline">
           <div class="timeline-item" *ngFor="let item of playerHistory()">
             <div class="item-header">
               <span class="date">{{ item.match.date | date:'dd MMM yyyy' }}</span>

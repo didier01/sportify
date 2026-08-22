@@ -3,7 +3,7 @@
   <header class="app-header">
     <div class="header-logo" routerLink="/">
       <span class="logo-emoji">⚽</span>
-      <span class="logo-text">FUTSTATS</span>
+      <span class="logo-text">SPORT-TIFY</span>
     </div>
     <nav class="header-nav">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
@@ -14,7 +14,7 @@
         <nz-icon nzType="team" nzTheme="outline" class="nav-icon"></nz-icon>
         <span class="nav-label">Balanceador</span>
       </a>
-      <a routerLink="/log-match" routerLinkActive="active" class="nav-item">
+      <a *ngIf="authService.isAdmin()" routerLink="/log-match" routerLinkActive="active" class="nav-item">
         <nz-icon nzType="calendar" nzTheme="outline" class="nav-icon"></nz-icon>
         <span class="nav-label">Registrar Partido</span>
       </a>
@@ -22,9 +22,14 @@
         <nz-icon nzType="file-text" nzTheme="outline" class="nav-icon"></nz-icon>
         <span class="nav-label">Historial</span>
       </a>
-      <a routerLink="/players" routerLinkActive="active" class="nav-item">
+      <a *ngIf="authService.isAdmin()" routerLink="/players" routerLinkActive="active" class="nav-item">
         <nz-icon nzType="user" nzTheme="outline" class="nav-icon"></nz-icon>
         <span class="nav-label">Plantilla</span>
+      </a>
+      <a *ngIf="authService.isAdmin()" (click)="authService.logout()" class="nav-item logout-btn"
+        style="cursor: pointer;">
+        <nz-icon nzType="logout" nzTheme="outline" class="nav-icon"></nz-icon>
+        <span class="nav-label">Salir</span>
       </a>
     </nav>
   </header>
