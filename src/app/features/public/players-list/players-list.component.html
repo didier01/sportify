@@ -1,0 +1,270 @@
+<div class="leaderboard-container">
+  <div class="header-section">
+    <h1>ESTADÍSTICAS DEL EQUIPO</h1>
+    <p>Historial acumulado y rendimiento individual de los partidos semanales.</p>
+  </div>
+
+  <!-- Top Performers Highlights -->
+  <div nz-row [nzGutter]="16" class="highlights-grid">
+    <div nz-col [nzXs]="24" [nzSm]="8">
+      <nz-card class="highlight-card pichichi-card">
+        <div class="card-content">
+          <div class="card-icon">
+            <nz-icon nzType="trophy" nzTheme="outline" class="gold-icon"></nz-icon>
+          </div>
+          <div class="card-info">
+            <span class="label">PICHICHI (GOLEADOR)</span>
+            <h3 class="name">{{ topScorer() ? topScorer()?.nickname : 'N/A' }}</h3>
+            <span class="value">{{ topScorer() ? topScorer()?.goals : 0 }} Goles</span>
+          </div>
+        </div>
+      </nz-card>
+    </div>
+    
+    <div nz-col [nzXs]="24" [nzSm]="8">
+      <nz-card class="highlight-card assists-card">
+        <div class="card-content">
+          <div class="card-icon">
+            <nz-icon nzType="file-text" nzTheme="outline" class="emerald-icon"></nz-icon>
+          </div>
+          <div class="card-info">
+            <span class="label">MÁXIMO ASISTENTE</span>
+            <h3 class="name">{{ topAssistant() ? topAssistant()?.nickname : 'N/A' }}</h3>
+            <span class="value">{{ topAssistant() ? topAssistant()?.assists : 0 }} Asistencias</span>
+          </div>
+        </div>
+      </nz-card>
+    </div>
+
+    <div nz-col [nzXs]="24" [nzSm]="8">
+      <nz-card class="highlight-card mvp-card">
+        <div class="card-content">
+          <div class="card-icon">
+            <nz-icon nzType="user" nzTheme="outline" class="blue-icon"></nz-icon>
+          </div>
+          <div class="card-info">
+            <span class="label">MEJOR VALORADO (MVP)</span>
+            <h3 class="name">{{ topRated() ? topRated()?.nickname : 'N/A' }}</h3>
+            <span class="value">{{ topRated() ? topRated()?.average_rating?.toFixed(2) : '0.00' }} Rating</span>
+          </div>
+        </div>
+      </nz-card>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-container">
+    <div class="filter-item search-bar">
+      <nz-input-group [nzSuffix]="suffixIconSearch">
+        <input 
+          type="text" 
+          nz-input 
+          placeholder="Buscar jugador por nombre o apodo..." 
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+        />
+      </nz-input-group>
+      <ng-template #suffixIconSearch>
+        <nz-icon nzType="filter" nzTheme="outline" style="color: var(--text-muted)"></nz-icon>
+      </ng-template>
+    </div>
+
+    <div class="filter-item match-select">
+      <nz-select 
+        [ngModel]="selectedMatchId()"
+        (ngModelChange)="onMatchChange($event)"
+        nzPlaceHolder="Filtrar por partido"
+        style="width: 100%; min-width: 250px;"
+      >
+        <nz-option nzValue="ALL" nzLabel="Todos los partidos (Global)"></nz-option>
+        <nz-option *ngFor="let m of matches" [nzValue]="m.id" [nzLabel]="'Partido - ' + (m.date | date:'dd/MM/yyyy')"></nz-option>
+      </nz-select>
+    </div>
+
+    <div class="filter-item position-select">
+      <nz-select 
+        [ngModel]="positionFilter()"
+        (ngModelChange)="positionFilter.set($event)"
+        nzPlaceHolder="Filtrar por posición"
+        style="width: 100%;"
+      >
+        <nz-option nzValue="ALL" nzLabel="Todas las Posiciones"></nz-option>
+        <nz-option nzValue="GK" nzLabel="Porteros (GK)"></nz-option>
+        <nz-option nzValue="DF" nzLabel="Defensas (DF)"></nz-option>
+        <nz-option nzValue="MF" nzLabel="Mediocampistas (MF)"></nz-option>
+        <nz-option nzValue="FW" nzLabel="Delanteros (FW)"></nz-option>
+      </nz-select>
+    </div>
+  </div>
+
+  <!-- Leaderboard Table -->
+  <nz-card class="table-card">
+    <nz-table 
+      #statsTable 
+      [nzData]="filteredStats()" 
+      [nzPageSize]="15"
+      [nzLoading]="false"
+      class="dark-themed-table"
+    >
+      <thead>
+        <tr>
+          <th style="width: 60px; text-align: center;">Pos</th>
+          <th>Jugador</th>
+          <th>Posición</th>
+          <th *ngIf="selectedMatchId() === 'ALL'" style="text-align: center;">PJ</th>
+          <th style="text-align: center; color: var(--warning-color);">G</th>
+          <th style="text-align: center; color: var(--primary-color);">A</th>
+          <th style="text-align: center; font-weight: bold;">G+A</th>
+          <th *ngIf="selectedMatchId() === 'ALL'" style="text-align: center;">Win Rate (%)</th>
+          <th style="text-align: center;">Rating Promedio</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of statsTable.data; let i = index" (click)="openPlayerDrawer(data)" class="clickable-row">
+          <td style="text-align: center; font-weight: bold;" [class.top-three]="i < 3">
+            {{ i + 1 }}
+          </td>
+          <td>
+            <div class="player-identity">
+              <span class="nickname">{{ data.nickname }}</span>
+              <span class="full-name" *ngIf="data.name && data.name !== data.nickname">{{ data.name }}</span>
+            </div>
+          </td>
+          <td>
+            <nz-tag [nzColor]="getPositionColor(data.preferred_position)">
+              {{ getPositionLabel(data.preferred_position) }}
+            </nz-tag>
+          </td>
+          <td *ngIf="selectedMatchId() === 'ALL'" style="text-align: center;">{{ data.matches_played }}</td>
+          <td style="text-align: center; font-weight: 500; color: var(--warning-color);">{{ data.goals }}</td>
+          <td style="text-align: center; font-weight: 500; color: var(--primary-color);">{{ data.assists }}</td>
+          <td style="text-align: center; font-weight: bold;">{{ data.goals + data.assists }}</td>
+          <td *ngIf="selectedMatchId() === 'ALL'" style="text-align: center;">
+            <div class="win-rate-indicator">
+              <span>{{ data.win_rate }}%</span>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" [style.width.%]="data.win_rate"></div>
+              </div>
+            </div>
+          </td>
+          <td style="text-align: center;">
+            <div class="rating-display">
+              <span class="rating-number">{{ data.average_rating.toFixed(2) }}</span>
+              <nz-icon nzType="setting" nzTheme="outline" class="star-icon" style="color: var(--primary-color); font-size: 12px;"></nz-icon>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredStats().length === 0">
+          <td colspan="9" style="text-align: center; color: var(--text-muted); padding: var(--spacing-xl) 0;">
+            No se encontraron jugadores que coincidan con la búsqueda.
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+
+  <!-- Player Details Drawer -->
+  <nz-drawer
+    [nzVisible]="isDrawerVisible"
+    nzPlacement="right"
+    nzTitle="Ficha de Rendimiento"
+    (nzOnClose)="closePlayerDrawer()"
+    [nzWidth]="420"
+    nzClassName="dark-drawer"
+  >
+    <ng-container *nzDrawerContent>
+      <div *ngIf="selectedPlayerDetails() as player" class="drawer-profile-container">
+        
+        <!-- Player Header Card -->
+        <div class="player-header-card">
+          <div class="header-avatar">⚽</div>
+          <div class="header-info">
+            <h2>{{ player.nickname }}</h2>
+            <span class="full-name" *ngIf="player.name">{{ player.name }}</span>
+            <nz-tag [nzColor]="getPositionColor(player.preferred_position)" style="margin-top: 4px;">
+              {{ getPositionLabel(player.preferred_position) }}
+            </nz-tag>
+          </div>
+        </div>
+
+        <!-- Career Statistics Grid -->
+        <nz-divider nzText="Estadísticas de Temporada"></nz-divider>
+        
+        <div nz-row [nzGutter]="[12, 12]" class="drawer-stats-grid">
+          <div nz-col nzSpan="12">
+            <div class="stat-box">
+              <span class="lbl">Partidos</span>
+              <span class="val">{{ player.matches_played }}</span>
+            </div>
+          </div>
+          <div nz-col nzSpan="12">
+            <div class="stat-box">
+              <span class="lbl">Win Rate</span>
+              <span class="val highlight-win">{{ player.win_rate }}%</span>
+            </div>
+          </div>
+          <div nz-col nzSpan="8">
+            <div class="stat-box">
+              <span class="lbl">Goles</span>
+              <span class="val highlight-goals">{{ player.goals }}</span>
+            </div>
+          </div>
+          <div nz-col nzSpan="8">
+            <div class="stat-box">
+              <span class="lbl">Asistencias</span>
+              <span class="val highlight-assists">{{ player.assists }}</span>
+            </div>
+          </div>
+          <div nz-col nzSpan="8">
+            <div class="stat-box">
+              <span class="lbl">G+A</span>
+              <span class="val">{{ player.goals + player.assists }}</span>
+            </div>
+          </div>
+          <div nz-col nzSpan="24">
+            <div class="stat-box rating-box">
+              <span class="lbl">Calificación Promedio</span>
+              <span class="val text-primary">★ {{ player.average_rating.toFixed(2) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Match History Timeline -->
+        <nz-divider nzText="Historial de Partidos"></nz-divider>
+
+        <div *ngIf="isLoadingHistory" class="drawer-loading">
+          <nz-spin nzSimple></nz-spin>
+          <p style="margin-top: 8px; color: var(--text-muted);">Cargando historial...</p>
+        </div>
+
+        <div *ngIf="!isLoadingHistory" class="drawer-history-timeline">
+          <div class="timeline-item" *ngFor="let item of playerHistory()">
+            <div class="item-header">
+              <span class="date">{{ item.match.date | date:'dd MMM yyyy' }}</span>
+              <nz-tag [nzColor]="item.team === 'A' ? 'success' : 'warning'">
+                {{ item.team === 'A' ? 'Verde' : 'Naranja' }}
+              </nz-tag>
+            </div>
+            
+            <div class="item-body">
+              <div class="result-flex">
+                <span class="score">Marcador: {{ item.match.team_a_score }} - {{ item.match.team_b_score }}</span>
+                <span class="mvp-star" *ngIf="item.isMvp">★ MVP</span>
+              </div>
+              <div class="performance-details">
+                <span>Calif: <strong class="text-primary">{{ item.rating.toFixed(1) }}</strong></span>
+                <span *ngIf="item.goals > 0">⚽ Goles: <strong>{{ item.goals }}</strong></span>
+                <span *ngIf="item.assists > 0">🎯 Asist: <strong>{{ item.assists }}</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="playerHistory().length === 0" class="empty-history-text">
+            Este jugador no ha disputado partidos oficiales aún.
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
+  </nz-drawer>
+</div>

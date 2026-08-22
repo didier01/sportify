@@ -1,0 +1,236 @@
+<div class="match-logger-container">
+  <div class="header-section">
+    <h1>REGISTRAR NUEVO PARTIDO</h1>
+    <p>Registra la bitácora del partido, califica a los jugadores y guarda las estadísticas.</p>
+  </div>
+
+  <div nz-row [nzGutter]="24">
+    <!-- Left Panel: General Info & Parser -->
+    <div nz-col [nzXs]="24" [nzLg]="8">
+      <nz-card nzTitle="Datos Generales" class="info-card">
+        <div class="form-field">
+          <label>Fecha del Encuentro</label>
+          <nz-date-picker 
+            [(ngModel)]="matchDate" 
+            nzFormat="yyyy-MM-dd" 
+            style="width: 100%;"
+          ></nz-date-picker>
+        </div>
+
+        <div class="form-field">
+          <label>Enlace del Video de YouTube</label>
+          <input 
+            nz-input 
+            type="text" 
+            placeholder="https://www.youtube.com/watch?v=..." 
+            [(ngModel)]="youtubeUrl" 
+          />
+        </div>
+
+        <div class="form-field">
+          <label>Resumen / Notas del Partido</label>
+          <textarea 
+            nz-input 
+            rows="3" 
+            placeholder="Comentarios adicionales del partido..." 
+            [(ngModel)]="matchNotes"
+          ></textarea>
+        </div>
+        <div class="form-field team-selectors" style="display: flex; gap: var(--spacing-md);">
+          <div style="flex: 1;">
+            <label>Equipo A</label>
+            <nz-select [(ngModel)]="teamAName" style="width: 100%;">
+              <nz-option *ngFor="let color of teamColors" [nzValue]="color" [nzLabel]="color"></nz-option>
+            </nz-select>
+          </div>
+          <div style="flex: 1;">
+            <label>Equipo B</label>
+            <nz-select [(ngModel)]="teamBName" style="width: 100%;">
+              <nz-option *ngFor="let color of teamColors" [nzValue]="color" [nzLabel]="color"></nz-option>
+            </nz-select>
+          </div>
+        </div>
+      </nz-card>
+
+      <!-- Text Parser card -->
+      <nz-card nzTitle="Carga Rápida desde Notas de Video" class="parser-card">
+        <p class="parser-help">
+          Pega tus notas de edición y el sistema autocompletará la convocatoria, los equipos y la lista de goles.
+        </p>
+        <textarea 
+          nz-input 
+          rows="8" 
+          placeholder="Ejemplo:&#10;Equipo Verde (2 goles)&#10;Solarte (2 goles): 05:57, 08:30&#10;&#10;O también:&#10;05:57 - Solarte - Didier"
+          [(ngModel)]="rawNotesText"
+          class="parser-textarea"
+        ></textarea>
+        <button 
+          nz-button 
+          nzType="default" 
+          nzBlock 
+          (click)="processNotes()" 
+          class="parser-btn"
+        >
+          <nz-icon nzType="file-text"></nz-icon> Procesar y Cargar Notas
+        </button>
+      </nz-card>
+    </div>
+
+    <!-- Right Panel: Roster & Timeline Grid -->
+    <div nz-col [nzXs]="24" [nzLg]="16">
+      <!-- Roster management card -->
+      <nz-card nzTitle="Plantilla y Calificaciones de este Partido" class="roster-card">
+        <div class="roster-list-header">
+          <span class="col-lbl player-name-header">Jugador</span>
+          <span class="col-lbl center-header">¿Jugó?</span>
+          <span class="col-lbl center-header">Equipo</span>
+          <span class="col-lbl center-header rating-col-header">Nota</span>
+        </div>
+
+        <div class="roster-scroll-container">
+          <div 
+            *ngFor="let item of roster" 
+            class="roster-row" 
+            [class.row-played]="item.played"
+          >
+            <div class="col-val name-col">
+              <span class="nickname">{{ item.player.nickname }}</span>
+              <nz-tag class="pos-tag" [nzColor]="getPositionColor(item.player.preferred_position)">
+                {{ getPositionLabel(item.player.preferred_position) }}
+              </nz-tag>
+            </div>
+
+            <div class="col-val center-col checkbox-col">
+              <label 
+                nz-checkbox 
+                [(ngModel)]="item.played" 
+                (ngModelChange)="calculateScores()"
+              ></label>
+            </div>
+
+            <div class="col-val center-col team-col">
+              <nz-radio-group 
+                *ngIf="item.played" 
+                [(ngModel)]="item.team" 
+                (ngModelChange)="calculateScores()"
+                nzButtonStyle="solid" 
+                nzSize="small"
+              >
+                <label nz-radio-button nzValue="A" class="btn-team-a" [ngClass]="'team-' + teamAName.toLowerCase()">{{ teamAName }}</label>
+                <label nz-radio-button nzValue="B" class="btn-team-b" [ngClass]="'team-' + teamBName.toLowerCase()">{{ teamBName }}</label>
+              </nz-radio-group>
+              <span *ngIf="!item.played" class="inactive-placeholder">-</span>
+            </div>
+
+            <div class="col-val center-col rating-col">
+              <nz-input-number 
+                *ngIf="item.played"
+                [(ngModel)]="item.rating" 
+                [nzMin]="1.0" 
+                [nzMax]="10.0" 
+                [nzStep]="0.1"
+                nzSize="small"
+                style="width: 60px;"
+              ></nz-input-number>
+              <span *ngIf="!item.played" class="inactive-placeholder">-</span>
+            </div>
+          </div>
+        </div>
+      </nz-card>
+
+      <!-- Goals timeline card -->
+      <nz-card nzTitle="Registro de Goles" class="timeline-card">
+        <div class="timeline-list">
+          <div *ngFor="let goal of goalsTimeline; let idx = index" class="goal-event-row">
+            <span class="goal-badge">Gol #{{ idx + 1 }}</span>
+
+            <div class="minute-input">
+              <input 
+                nz-input 
+                [(ngModel)]="goal.time_str" 
+                placeholder="MM:SS"
+                style="width: 70px; text-align: center;"
+              />
+            </div>
+
+            <div class="player-select">
+              <nz-select 
+                [(ngModel)]="goal.player_id" 
+                (ngModelChange)="calculateScores()"
+                nzPlaceHolder="Anotador" 
+                style="width: 100%;"
+              >
+                <nz-option 
+                  *ngFor="let p of getConvocados()" 
+                  [nzValue]="p.id" 
+                  [nzLabel]="p.nickname"
+                ></nz-option>
+              </nz-select>
+            </div>
+
+            <span class="assistant-label">Asistencia:</span>
+
+            <div class="player-select">
+              <nz-select 
+                [(ngModel)]="goal.assistant_id" 
+                nzPlaceHolder="Ninguna" 
+                nzAllowClear
+                style="width: 100%;"
+              >
+                <nz-option 
+                  *ngFor="let p of getConvocados()" 
+                  [nzValue]="p.id" 
+                  [nzLabel]="p.nickname"
+                ></nz-option>
+              </nz-select>
+            </div>
+
+            <button 
+              nz-button 
+              nzDanger 
+              nzType="text" 
+              (click)="removeGoal(idx)" 
+              class="delete-goal-btn"
+            >
+              <nz-icon nzType="delete"></nz-icon>
+            </button>
+          </div>
+          
+          <div *ngIf="goalsTimeline.length === 0" class="empty-timeline">
+            No se han registrado goles para este partido.
+          </div>
+        </div>
+
+        <button nz-button nzType="dashed" nzBlock (click)="addGoal()" class="add-goal-btn">
+          <nz-icon nzType="plus"></nz-icon> Agregar Gol Manualmente
+        </button>
+      </nz-card>
+
+      <!-- Score overview and submit -->
+      <nz-card class="submit-card">
+        <div class="score-board-flex">
+          <div class="score-block team-a-block" [ngClass]="'text-' + teamAName.toLowerCase()">
+            <h3>EQUIPO {{ teamAName | uppercase }}</h3>
+            <span class="score-display">{{ teamAScore }}</span>
+          </div>
+          <div class="vs-block">-</div>
+          <div class="score-block team-b-block" [ngClass]="'text-' + teamBName.toLowerCase()">
+            <h3>EQUIPO {{ teamBName | uppercase }}</h3>
+            <span class="score-display">{{ teamBScore }}</span>
+          </div>
+        </div>
+
+        <button 
+          nz-button 
+          nzType="primary" 
+          nzBlock 
+          (click)="saveMatch()" 
+          [disabled]="getConvocados().length < 4"
+          class="save-btn"
+        >
+          <nz-icon nzType="check"></nz-icon> Guardar Partido y Actualizar Leaderboard
+        </button>
+      </nz-card>
+    </div>
+  </div>
+</div>

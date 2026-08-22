@@ -1,0 +1,154 @@
+<div class="team-builder-container">
+  <div class="header-section">
+    <h1>BALANCEADOR DE EQUIPOS</h1>
+    <p>Selecciona los convocados y genera emparejamientos equitativos al instante.</p>
+  </div>
+
+  <div nz-row [nzGutter]="24">
+    <!-- Left Column: Player Selection -->
+    <div nz-col [nzXs]="24" [nzLg]="10">
+      <nz-card [nzTitle]="selectorTitle" class="selection-card">
+        <ng-template #selectorTitle>
+          <div class="card-header-flex">
+            <span>Convocados ({{ selectedCount() }})</span>
+            <div class="preset-buttons">
+              <button nz-button nzSize="small" (click)="selectPreset(10)">Fútbol 5 (10)</button>
+              <button nz-button nzSize="small" (click)="selectPreset(14)">Fútbol 7 (14)</button>
+              <button nz-button nzSize="small" nzDanger (click)="clearSelection()">Limpiar</button>
+            </div>
+          </div>
+        </ng-template>
+
+        <div class="players-selection-list">
+          <div 
+            *ngFor="let player of activePlayers()" 
+            class="player-select-item"
+            [class.selected]="selectedPlayersMap()[player.id]"
+            (click)="togglePlayer(player.id)"
+          >
+            <div class="player-select-info">
+              <span class="player-name">{{ player.nickname }}</span>
+              <nz-tag [nzColor]="getPositionColor(player.preferred_position)">
+                {{ getPositionLabel(player.preferred_position) }}
+              </nz-tag>
+            </div>
+            <div class="player-select-rating">
+              <span>★ {{ getPlayerRating(player).toFixed(1) }}</span>
+              <label 
+                nz-checkbox 
+                [ngModel]="selectedPlayersMap()[player.id]"
+                (ngModelChange)="togglePlayer(player.id)"
+                (click)="$event.stopPropagation()"
+              ></label>
+            </div>
+          </div>
+        </div>
+      </nz-card>
+    </div>
+
+    <!-- Right Column: Algorithm controls and Results -->
+    <div nz-col [nzXs]="24" [nzLg]="14">
+      <nz-card nzTitle="Configuración del Balanceo" class="control-card">
+        <div class="settings-group">
+          <label class="control-label">Estrategia de Balanceo</label>
+          <nz-radio-group 
+            [ngModel]="balanceMode()" 
+            (ngModelChange)="balanceMode.set($event)" 
+            nzButtonStyle="solid"
+            class="mode-selector"
+          >
+            <label nz-radio-button nzValue="HYBRID">Híbrido (Recomendado)</label>
+            <label nz-radio-button nzValue="NUMERIC">Solo Nivel</label>
+            <label nz-radio-button nzValue="POSITIONAL">Solo Posiciones</label>
+          </nz-radio-group>
+        </div>
+
+        <button 
+          nz-button 
+          nzType="primary" 
+          nzBlock 
+          (click)="generateTeams()" 
+          [disabled]="selectedCount() < 4"
+          class="generate-btn"
+        >
+          <nz-icon nzType="setting"></nz-icon> Balancear y Crear Equipos
+        </button>
+
+        <!-- Output Suggestions if available -->
+        <div *ngIf="suggestions().length > 0; else noCombo" class="results-section">
+          <nz-divider nzText="Opciones Generadas"></nz-divider>
+          
+          <div class="suggestions-tabs">
+            <nz-radio-group 
+              [ngModel]="selectedSuggestionIndex()" 
+              (ngModelChange)="selectedSuggestionIndex.set($event)"
+              nzButtonStyle="solid"
+              class="suggestion-selector"
+            >
+              <label 
+                nz-radio-button 
+                *ngFor="let sug of suggestions(); let idx = index" 
+                [nzValue]="idx"
+              >
+                {{ getSuggestionTitle(idx) }} (Dif: {{ sug.ratingDiff.toFixed(1) }})
+              </label>
+            </nz-radio-group>
+          </div>
+
+          <div class="teams-display-row" *ngIf="getCurrentCombo() as combo">
+            <!-- Team A Card -->
+            <div class="team-card team-a">
+              <div class="team-header">
+                <h3>EQUIPO VERDE</h3>
+                <span class="rating">Rating Total: {{ getTeamRatingSum(combo.teamA) }}</span>
+              </div>
+              <div class="team-players-list">
+                <div class="team-player-row" *ngFor="let p of combo.teamA; let idx = index">
+                  <span class="number">{{ idx + 1 }}</span>
+                  <span class="name">{{ p.nickname }}</span>
+                  <nz-tag [nzColor]="getPositionColor(p.preferred_position)">{{ p.preferred_position }}</nz-tag>
+                  <span class="rating-val">★ {{ getPlayerRating(p).toFixed(1) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Team B Card -->
+            <div class="team-card team-b">
+              <div class="team-header">
+                <h3>EQUIPO NARANJA</h3>
+                <span class="rating">Rating Total: {{ getTeamRatingSum(combo.teamB) }}</span>
+              </div>
+              <div class="team-players-list">
+                <div class="team-player-row" *ngFor="let p of combo.teamB; let idx = index">
+                  <span class="number">{{ idx + 1 }}</span>
+                  <span class="name">{{ p.nickname }}</span>
+                  <nz-tag [nzColor]="getPositionColor(p.preferred_position)">{{ p.preferred_position }}</nz-tag>
+                  <span class="rating-val">★ {{ getPlayerRating(p).toFixed(1) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions on suggestion -->
+          <div class="actions-section" *ngIf="getCurrentCombo()">
+            <button nz-button nzType="default" nzBlock class="whatsapp-btn" (click)="copyTeamsToClipboard()">
+              <nz-icon nzType="copy"></nz-icon> Copiar alineación para WhatsApp
+            </button>
+          </div>
+        </div>
+
+        <ng-template #noCombo>
+          <div class="empty-results">
+            <nz-alert
+              nzType="info"
+              nzMessage="Esperando Convocatoria"
+              nzDescription="Selecciona los jugadores del partido y haz clic en el botón para balancear los equipos."
+              nzShowIcon
+              class="custom-alert"
+            ></nz-alert>
+          </div>
+        </ng-template>
+      </nz-card>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,426 @@
+.history-container {
+  padding: var(--spacing-xl);
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .header-section {
+    margin-bottom: var(--spacing-xl);
+    text-align: left;
+    
+    h1 {
+      font-size: 2.5rem;
+      letter-spacing: -0.5px;
+      margin-bottom: var(--spacing-xs);
+      background: linear-gradient(135deg, var(--text-main) 60%, var(--primary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+  }
+
+  .matches-grid {
+    .match-summary-card {
+      margin-bottom: var(--spacing-md);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        border-color: var(--primary-color-hover);
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-md);
+
+        .match-date {
+          font-size: 0.75rem;
+          color: var(--text-muted);
+          font-weight: 600;
+          text-transform: capitalize;
+        }
+
+        .yt-link {
+          color: var(--error-color);
+          font-size: 1.25rem;
+          display: flex;
+          align-items: center;
+          
+          &:hover {
+            transform: scale(1.1);
+          }
+        }
+      }
+
+      .score-display {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: var(--spacing-md);
+        margin: var(--spacing-md) 0;
+
+        .vs {
+          font-size: 0.75rem;
+          font-weight: 800;
+          color: var(--text-muted);
+        }
+
+        .team {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-sm);
+          flex: 1;
+
+          .name {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+          }
+
+          .goals {
+            font-size: 1.5rem;
+            font-weight: 900;
+            font-family: var(--font-family-heading);
+          }
+
+          &.team-verde {
+            justify-content: flex-end;
+            color: var(--primary-color);
+          }
+
+          &.team-naranja {
+            justify-content: flex-start;
+            color: #f97316;
+          }
+        }
+      }
+
+      .card-footer {
+        margin-top: var(--spacing-md);
+        
+        button {
+          background-color: var(--bg-input);
+          border-color: var(--border-color);
+          color: var(--text-main);
+
+          &:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+          }
+        }
+      }
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--spacing-xxl) 0;
+
+    .empty-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-sm);
+
+      .empty-icon {
+        font-size: 3rem;
+        color: var(--text-muted);
+        opacity: 0.4;
+      }
+
+      h3 {
+        font-size: 1.25rem;
+        margin-top: var(--spacing-sm);
+      }
+
+      p {
+        color: var(--text-muted);
+        max-width: 400px;
+        margin: 0 auto;
+      }
+    }
+  }
+}
+
+/* Modal details stylesheet */
+.modal-loading {
+  text-align: center;
+  padding: var(--spacing-xxl) 0;
+  color: var(--text-muted);
+
+  .loading-icon {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-md);
+  }
+}
+
+.modal-details-body {
+  animation: fadeIn 0.3s ease;
+
+  .scoreboard-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-xl);
+    padding: var(--spacing-md);
+    background-color: var(--bg-app);
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--border-color);
+    margin-bottom: var(--spacing-md);
+
+    .vs-text {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--text-muted);
+    }
+
+    .score-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+
+      h4 {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        letter-spacing: 0.5px;
+        margin: 0;
+      }
+
+      .score-num {
+        font-size: 3rem;
+        font-weight: 900;
+        font-family: var(--font-family-heading);
+      }
+
+      &.block-verde { color: var(--primary-color); }
+      &.block-naranja { color: #f97316; }
+    }
+  }
+
+  .match-meta-grid {
+    display: flex;
+    justify-content: space-around;
+    background-color: rgba(255, 255, 255, 0.01);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+
+      .lbl {
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+
+      .val {
+        font-weight: 600;
+        color: var(--text-main);
+      }
+
+      .val-link {
+        color: var(--error-color);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  .match-notes {
+    background-color: var(--bg-app);
+    border-left: 3px solid var(--primary-color);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .lineup-box {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
+    margin-bottom: var(--spacing-md);
+
+    .lineup-title {
+      padding: 6px var(--spacing-md);
+      font-family: var(--font-family-heading);
+      font-weight: 800;
+      margin: 0;
+      color: var(--text-inverse);
+    }
+
+    .lineup-list {
+      padding: var(--spacing-sm);
+      background-color: var(--bg-app);
+    }
+
+    .lineup-row {
+      display: flex;
+      align-items: center;
+      padding: 6px 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      gap: 8px;
+      font-size: 0.85rem;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .name {
+        flex: 1;
+        font-weight: 600;
+      }
+
+      .pos-badge {
+        font-size: 0.7rem;
+        background-color: rgba(255, 255, 255, 0.05);
+        color: var(--text-muted);
+        padding: 1px 4px;
+        border-radius: 3px;
+        font-weight: 500;
+        margin-right: var(--spacing-sm);
+      }
+
+      .stats {
+        flex: 2;
+        display: flex;
+        gap: var(--spacing-sm);
+        font-size: 0.8rem;
+        color: var(--text-main);
+        
+        .stat-item {
+          display: flex;
+          align-items: center;
+          gap: 2px;
+          background-color: rgba(0, 0, 0, 0.2);
+          padding: 2px 6px;
+          border-radius: 4px;
+        }
+      }
+
+      .rating {
+        font-weight: 600;
+        color: var(--text-muted);
+      }
+
+      &.is-mvp {
+        background-color: rgba(16, 185, 129, 0.06);
+        
+        .name {
+          color: var(--primary-color);
+          &::after {
+            content: ' ★ MVP';
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-left: var(--spacing-xs);
+          }
+        }
+
+        .rating {
+          color: var(--primary-color);
+        }
+      }
+    }
+
+    &.lineup-verde {
+      border-color: var(--primary-color);
+      .lineup-title { background-color: var(--primary-color); }
+    }
+
+    &.lineup-naranja {
+      border-color: #f97316;
+      .lineup-title { background-color: #f97316; }
+    }
+  }
+
+  /* Goals Chronology Custom timeline */
+  .goals-timeline-container {
+    margin-bottom: var(--spacing-md);
+    
+    .timeline-team-title {
+      font-family: var(--font-family-heading);
+      font-weight: 800;
+      font-size: 0.9rem;
+      margin-bottom: var(--spacing-sm);
+      text-align: center;
+      padding: 4px 0;
+      border-radius: 4px;
+      color: var(--text-inverse);
+      text-transform: uppercase;
+
+      &.team-verde { background-color: var(--primary-color); }
+      &.team-naranja { background-color: #f97316; }
+    }
+  }
+
+  .goals-timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: var(--bg-app);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-sm);
+
+    .timeline-goal-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      font-size: 0.9rem;
+
+      .goal-time {
+        width: 35px;
+        font-weight: 800;
+        color: var(--warning-color);
+        font-family: var(--font-family-heading);
+      }
+
+      .goal-icon-ball {
+        font-size: 1rem;
+      }
+
+      .goal-description {
+        .scorer {
+          font-weight: 700;
+          color: var(--text-main);
+        }
+
+        .assistant {
+          font-size: 0.8rem;
+          color: var(--text-muted);
+          margin-left: var(--spacing-xs);
+
+          .assistant-name {
+            color: var(--primary-color);
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -9,6 +9,7 @@ create table if not exists players (
   preferred_position text not null check (preferred_position in ('GK', 'DF', 'MF', 'FW')),
   base_rating float not null default 6.0 check (base_rating >= 1.0 and base_rating <= 10.0),
   is_active boolean not null default true,
+  is_deleted boolean not null default false,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
@@ -38,6 +39,7 @@ create table if not exists match_events (
   match_id uuid references matches(id) on delete cascade not null,
   event_type text not null check (event_type in ('goal', 'card_yellow', 'card_red', 'mvp')),
   minute integer check (minute >= 0),
+  time_str text,
   player_id uuid references players(id) on delete cascade not null,
   assistant_id uuid references players(id) on delete set null,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
@@ -52,6 +54,7 @@ select
   p.preferred_position,
   p.base_rating,
   p.is_active,
+  p.is_deleted,
   -- Partidos Jugados
   count(distinct mp.match_id) as matches_played,
   -- Goles totales
@@ -71,4 +74,5 @@ from players p
 left join match_players mp on mp.player_id = p.id
 left join matches m on m.id = mp.match_id
 left join match_events me on me.match_id = mp.match_id and (me.player_id = p.id or me.assistant_id = p.id)
-group by p.id, p.name, p.nickname, p.preferred_position, p.base_rating, p.is_active;
+where p.is_deleted = false
+group by p.id, p.name, p.nickname, p.preferred_position, p.base_rating, p.is_active, p.is_deleted;

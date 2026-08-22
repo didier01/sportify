@@ -1,0 +1,185 @@
+<div class="management-container">
+  <div class="header-section">
+    <h1>PLANTILLA DE JUGADORES</h1>
+    <p>Agrega, edita o elimina los jugadores activos de tus partidos de fútbol semanal.</p>
+  </div>
+
+  <div nz-row [nzGutter]="24">
+    <!-- Player List Column -->
+    <div nz-col [nzXs]="24" [nzLg]="16">
+      <nz-card [nzTitle]="tableTitle" class="list-card">
+        <ng-template #tableTitle>
+          <div class="card-header-flex">
+            <span>Jugadores Registrados ({{ players().length }})</span>
+            <button nz-button nzType="primary" (click)="openAddModal()">
+              <nz-icon nzType="plus"></nz-icon> Nuevo Jugador
+            </button>
+          </div>
+        </ng-template>
+
+        <nz-table 
+          #playersTable 
+          [nzData]="players()" 
+          [nzPageSize]="10"
+          class="dark-themed-table"
+        >
+          <thead>
+            <tr>
+              <th [nzSortFn]="sortByName">Apodo (Parser)</th>
+              <th [nzSortFn]="sortByFullName">Nombre Completo</th>
+              <th [nzFilters]="positionFilters" [nzFilterFn]="filterByPosition">Posición</th>
+              <th style="text-align: center;" [nzSortFn]="sortByRating">Rating Base</th>
+              <th style="text-align: center;" [nzSortFn]="sortByStatus" [nzFilters]="statusFilters" [nzFilterFn]="filterByStatus">Estado</th>
+              <th style="text-align: center; width: 120px;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let player of playersTable.data">
+              <td>
+                <span class="player-nickname">{{ player.nickname }}</span>
+              </td>
+              <td>{{ player.name || '-' }}</td>
+              <td>
+                <nz-tag [nzColor]="getPositionColor(player.preferred_position)">
+                  {{ getPositionLabel(player.preferred_position) }}
+                </nz-tag>
+              </td>
+              <td style="text-align: center; font-weight: 500;">
+                {{ player.base_rating.toFixed(1) }}
+              </td>
+              <td style="text-align: center;">
+                <nz-tag [nzColor]="player.is_active ? 'success' : 'error'">
+                  {{ player.is_active ? 'Activo' : 'Inactivo' }}
+                </nz-tag>
+              </td>
+              <td style="text-align: center;">
+                <div class="actions-group">
+                  <button 
+                    nz-button 
+                    nzType="text" 
+                    nzSize="small" 
+                    (click)="openEditModal(player)"
+                    style="color: var(--primary-color)"
+                  >
+                    <nz-icon nzType="edit"></nz-icon>
+                  </button>
+                  <button 
+                    nz-button 
+                    nzType="text" 
+                    nzDanger 
+                    nzSize="small"
+                    (click)="handleDelete(player)"
+                  >
+                    <nz-icon nzType="delete"></nz-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="players().length === 0">
+              <td colspan="6" style="text-align: center; color: var(--text-muted); padding: var(--spacing-xl) 0;">
+                No hay jugadores registrados. Añade uno individualmente o usa la importación masiva.
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+      </nz-card>
+    </div>
+
+    <!-- Bulk Import Column -->
+    <div nz-col [nzXs]="24" [nzLg]="8">
+      <nz-card nzTitle="Importación Masiva" class="bulk-card">
+        <p class="bulk-instructions">
+          Escribe o pega los apodos de tus jugadores separados por comas, saltos de línea o punto y coma. Se registrarán automáticamente con parámetros por defecto.
+        </p>
+        <textarea 
+          nz-input 
+          rows="6" 
+          placeholder="Ejemplo:&#10;Solarte, Pury, Armando, Jhon, Regalón, Pasto, Santi"
+          [(ngModel)]="bulkInputText"
+          class="bulk-textarea"
+        ></textarea>
+        <button 
+          nz-button 
+          nzType="primary" 
+          nzBlock 
+          (click)="handleBulkImport()" 
+          [nzLoading]="isBulkImporting"
+          class="bulk-btn"
+        >
+          <nz-icon nzType="upload"></nz-icon> Importar en bloque
+        </button>
+      </nz-card>
+    </div>
+  </div>
+
+  <!-- Create/Edit Modal -->
+  <nz-modal
+    [(nzVisible)]="isModalVisible"
+    [nzTitle]="modalTitle"
+    (nzOnCancel)="handleCancel()"
+    (nzOnOk)="handleSave()"
+    [nzOkText]="'Guardar'"
+    [nzCancelText]="'Cancelar'"
+    nzClassName="dark-modal"
+  >
+    <div *nzModalContent>
+      <form nz-form [formGroup]="playerForm" nzLayout="vertical">
+        <nz-form-item>
+          <nz-form-label nzRequired nzFor="nickname">Apodo (Para el Parser de Video)</nz-form-label>
+          <nz-form-control nzErrorTip="Por favor ingresa un apodo (máx 25 caracteres)">
+            <input nz-input formControlName="nickname" id="nickname" placeholder="Ej. Solarte" />
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label nzFor="name">Nombre Completo (Opcional)</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="name" id="name" placeholder="Ej. Edwin Solarte" />
+          </nz-form-control>
+        </nz-form-item>
+
+        <div nz-row [nzGutter]="16">
+          <div nz-col nzSpan="12">
+            <nz-form-item>
+              <nz-form-label nzRequired nzFor="preferred_position">Posición Habitual</nz-form-label>
+              <nz-form-control>
+                <nz-select formControlName="preferred_position" id="preferred_position">
+                  <nz-option nzValue="GK" nzLabel="Portero (GK)"></nz-option>
+                  <nz-option nzValue="DF" nzLabel="Defensa (DF)"></nz-option>
+                  <nz-option nzValue="MF" nzLabel="Mediocampista (MF)"></nz-option>
+                  <nz-option nzValue="FW" nzLabel="Delantero (FW)"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col nzSpan="12">
+            <nz-form-item>
+              <nz-form-label nzRequired nzFor="base_rating">Rating Inicial (1-10)</nz-form-label>
+              <nz-form-control nzErrorTip="Debe ser entre 1.0 y 10.0">
+                <nz-input-number 
+                  formControlName="base_rating" 
+                  id="base_rating" 
+                  [nzMin]="1" 
+                  [nzMax]="10" 
+                  [nzStep]="0.5" 
+                  style="width: 100%;"
+                ></nz-input-number>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+
+        <nz-form-item>
+          <nz-form-label nzFor="is_active">Jugador Activo</nz-form-label>
+          <nz-form-control>
+            <div class="switch-container">
+              <nz-switch formControlName="is_active" id="is_active"></nz-switch>
+              <span class="switch-helper-text">Solo los jugadores activos aparecen en el balanceador de equipos.</span>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </div>
+  </nz-modal>
+</div>
