@@ -166,18 +166,21 @@
         <div class="player-header-card">
           <div class="header-avatar">⚽</div>
           <div class="header-info">
-            <h2>{{ player.nickname }}</h2>
+            <div class="header-info-row">
+              <h2>{{ player.nickname }}</h2>
+              <nz-tag [nzColor]="getPositionColor(player.preferred_position)" style="margin-top: 4px;">
+                {{ getPositionLabel(player.preferred_position) }}
+              </nz-tag>
+            </div>
             <span class="full-name" *ngIf="player.name">{{ player.name }}</span>
-            <nz-tag [nzColor]="getPositionColor(player.preferred_position)" style="margin-top: 4px;">
-              {{ getPositionLabel(player.preferred_position) }}
-            </nz-tag>
+
           </div>
         </div>
 
         <!-- Career Statistics Grid -->
         <nz-divider nzText="Estadísticas de Temporada"></nz-divider>
 
-        <div nz-row [nzGutter]="[12, 12]" class="drawer-stats-grid">
+        <div nz-row [nzGutter]="[8, 8]" class="drawer-stats-grid">
           <div nz-col nzSpan="12">
             <div class="stat-box">
               <span class="lbl">Partidos</span>
@@ -186,7 +189,7 @@
           </div>
           <div nz-col nzSpan="12">
             <div class="stat-box">
-              <span class="lbl">Win Rate</span>
+              <span class="lbl">Promedio Victorias</span>
               <span class="val highlight-win">{{ player.win_rate }}%</span>
             </div>
           </div>
@@ -249,7 +252,7 @@
             <div class="item-header">
               <span class="date">{{ item.match.date | date:'dd MMM yyyy' }}</span>
               <div class="header-tags" style="display: flex; gap: 4px;">
-                <nz-tag [nzColor]="getResultColor(getMatchResult(item))">
+                <nz-tag [nzColor]="getResultColor(getMatchResult(item))" [class.draw-tag]="getMatchResult(item) === 'D'">
                   {{ getMatchResult(item) === 'W' ? 'Victoria' : (getMatchResult(item) === 'L' ? 'Derrota' : 'Empate')
                   }}
                 </nz-tag>
