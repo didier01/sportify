@@ -3,30 +3,17 @@
   max-width: 1200px;
   margin: 0 auto;
 
-  .header-section {
-    margin-bottom: var(--spacing-xl);
-    text-align: left;
-    
-    h1 {
-      font-size: 2.5rem;
-      letter-spacing: -0.5px;
-      margin-bottom: var(--spacing-xs);
-      background: linear-gradient(135deg, var(--text-main) 60%, var(--primary-color));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    p {
-      color: var(--text-muted);
-      font-size: 1.1rem;
-    }
+  @media (max-width: 992px) {
+    padding: var(--spacing-md);
   }
+
+
 
   .matches-grid {
     .match-summary-card {
       margin-bottom: var(--spacing-md);
       transition: transform 0.2s ease, border-color 0.2s ease;
-      
+
       &:hover {
         transform: translateY(-2px);
         border-color: var(--primary-color-hover);
@@ -50,7 +37,7 @@
           font-size: 1.25rem;
           display: flex;
           align-items: center;
-          
+
           &:hover {
             transform: scale(1.1);
           }
@@ -102,7 +89,7 @@
 
       .card-footer {
         margin-top: var(--spacing-md);
-        
+
         button {
           background-color: var(--bg-input);
           border-color: var(--border-color);
@@ -199,8 +186,13 @@
         font-family: var(--font-family-heading);
       }
 
-      &.block-verde { color: var(--primary-color); }
-      &.block-naranja { color: #f97316; }
+      &.block-verde {
+        color: var(--primary-color);
+      }
+
+      &.block-naranja {
+        color: #f97316;
+      }
     }
   }
 
@@ -237,7 +229,7 @@
         display: flex;
         align-items: center;
         gap: 2px;
-        
+
         &:hover {
           text-decoration: underline;
         }
@@ -307,7 +299,7 @@
         gap: var(--spacing-sm);
         font-size: 0.8rem;
         color: var(--text-main);
-        
+
         .stat-item {
           display: flex;
           align-items: center;
@@ -325,9 +317,10 @@
 
       &.is-mvp {
         background-color: rgba(16, 185, 129, 0.06);
-        
+
         .name {
           color: var(--primary-color);
+
           &::after {
             content: ' ★ MVP';
             font-size: 0.7rem;
@@ -345,19 +338,25 @@
 
     &.lineup-verde {
       border-color: var(--primary-color);
-      .lineup-title { background-color: var(--primary-color); }
+
+      .lineup-title {
+        background-color: var(--primary-color);
+      }
     }
 
     &.lineup-naranja {
       border-color: #f97316;
-      .lineup-title { background-color: #f97316; }
+
+      .lineup-title {
+        background-color: #f97316;
+      }
     }
   }
 
   /* Goals Chronology Custom timeline */
   .goals-timeline-container {
     margin-bottom: var(--spacing-md);
-    
+
     .timeline-team-title {
       font-family: var(--font-family-heading);
       font-weight: 800;
@@ -369,8 +368,13 @@
       color: var(--text-inverse);
       text-transform: uppercase;
 
-      &.team-verde { background-color: var(--primary-color); }
-      &.team-naranja { background-color: #f97316; }
+      &.team-verde {
+        background-color: var(--primary-color);
+      }
+
+      &.team-naranja {
+        background-color: #f97316;
+      }
     }
   }
 
@@ -421,6 +425,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

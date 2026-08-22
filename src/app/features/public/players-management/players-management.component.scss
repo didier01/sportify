@@ -3,24 +3,11 @@
   max-width: 1200px;
   margin: 0 auto;
 
-  .header-section {
-    margin-bottom: var(--spacing-xl);
-    text-align: left;
-
-    h1 {
-      font-size: 2.5rem;
-      letter-spacing: -0.5px;
-      margin-bottom: var(--spacing-xs);
-      background: linear-gradient(135deg, var(--text-main) 60%, var(--primary-color));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    p {
-      color: var(--text-muted);
-      font-size: 1.1rem;
-    }
+  @media (max-width: 992px) {
+    padding: var(--spacing-md);
   }
+
+
 
   .list-card {
     border-radius: var(--border-radius-base);
@@ -164,11 +151,11 @@
 
   .ant-modal-confirm-btns {
     margin-top: var(--spacing-xl);
-    
+
     .ant-btn {
       border-radius: var(--border-radius-sm);
     }
-    
+
     .ant-btn-default {
       background-color: var(--bg-input) !important;
       border-color: var(--border-color) !important;

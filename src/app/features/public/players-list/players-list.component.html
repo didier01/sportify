@@ -14,13 +14,15 @@
           </div>
           <div class="card-info">
             <span class="label">PICHICHI (GOLEADOR)</span>
-            <h3 class="name">{{ topScorer() ? topScorer()?.nickname : 'N/A' }}</h3>
-            <span class="value">{{ topScorer() ? topScorer()?.goals : 0 }} Goles</span>
+            <div class="info-row">
+              <h3 class="name">{{ topScorer() ? topScorer()?.nickname : 'N/A' }}</h3>
+              <span class="value">{{ topScorer() ? topScorer()?.goals : 0 }} Goles</span>
+            </div>
           </div>
         </div>
       </nz-card>
     </div>
-    
+
     <div nz-col [nzXs]="24" [nzSm]="8">
       <nz-card class="highlight-card assists-card">
         <div class="card-content">
@@ -29,8 +31,10 @@
           </div>
           <div class="card-info">
             <span class="label">MÁXIMO ASISTENTE</span>
-            <h3 class="name">{{ topAssistant() ? topAssistant()?.nickname : 'N/A' }}</h3>
-            <span class="value">{{ topAssistant() ? topAssistant()?.assists : 0 }} Asistencias</span>
+            <div class="info-row">
+              <h3 class="name">{{ topAssistant() ? topAssistant()?.nickname : 'N/A' }}</h3>
+              <span class="value">{{ topAssistant() ? topAssistant()?.assists : 0 }} Asistencias</span>
+            </div>
           </div>
         </div>
       </nz-card>
@@ -44,8 +48,10 @@
           </div>
           <div class="card-info">
             <span class="label">MEJOR VALORADO (MVP)</span>
-            <h3 class="name">{{ topRated() ? topRated()?.nickname : 'N/A' }}</h3>
-            <span class="value">{{ topRated() ? topRated()?.average_rating?.toFixed(2) : '0.00' }} Rating</span>
+            <div class="info-row">
+              <h3 class="name">{{ topRated() ? topRated()?.nickname : 'N/A' }}</h3>
+              <span class="value">{{ topRated() ? topRated()?.average_rating?.toFixed(2) : '0.00' }} Rating</span>
+            </div>
           </div>
         </div>
       </nz-card>
@@ -56,13 +62,8 @@
   <div class="filters-container">
     <div class="filter-item search-bar">
       <nz-input-group [nzSuffix]="suffixIconSearch">
-        <input 
-          type="text" 
-          nz-input 
-          placeholder="Buscar jugador por nombre o apodo..." 
-          [ngModel]="searchQuery()"
-          (ngModelChange)="searchQuery.set($event)"
-        />
+        <input type="text" nz-input placeholder="Buscar jugador por nombre o apodo..." [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)" />
       </nz-input-group>
       <ng-template #suffixIconSearch>
         <nz-icon nzType="filter" nzTheme="outline" style="color: var(--text-muted)"></nz-icon>
@@ -70,24 +71,17 @@
     </div>
 
     <div class="filter-item match-select">
-      <nz-select 
-        [ngModel]="selectedMatchId()"
-        (ngModelChange)="onMatchChange($event)"
-        nzPlaceHolder="Filtrar por partido"
-        style="width: 100%; min-width: 250px;"
-      >
+      <nz-select [ngModel]="selectedMatchId()" (ngModelChange)="onMatchChange($event)"
+        nzPlaceHolder="Filtrar por partido" style="width: 100%; min-width: 250px;">
         <nz-option nzValue="ALL" nzLabel="Todos los partidos (Global)"></nz-option>
-        <nz-option *ngFor="let m of matches" [nzValue]="m.id" [nzLabel]="'Partido - ' + (m.date | date:'dd/MM/yyyy')"></nz-option>
+        <nz-option *ngFor="let m of matches" [nzValue]="m.id"
+          [nzLabel]="'Partido - ' + (m.date | date:'dd/MM/yyyy')"></nz-option>
       </nz-select>
     </div>
 
     <div class="filter-item position-select">
-      <nz-select 
-        [ngModel]="positionFilter()"
-        (ngModelChange)="positionFilter.set($event)"
-        nzPlaceHolder="Filtrar por posición"
-        style="width: 100%;"
-      >
+      <nz-select [ngModel]="positionFilter()" (ngModelChange)="positionFilter.set($event)"
+        nzPlaceHolder="Filtrar por posición" style="width: 100%;">
         <nz-option nzValue="ALL" nzLabel="Todas las Posiciones"></nz-option>
         <nz-option nzValue="GK" nzLabel="Porteros (GK)"></nz-option>
         <nz-option nzValue="DF" nzLabel="Defensas (DF)"></nz-option>
@@ -99,13 +93,8 @@
 
   <!-- Leaderboard Table -->
   <nz-card class="table-card">
-    <nz-table 
-      #statsTable 
-      [nzData]="filteredStats()" 
-      [nzPageSize]="15"
-      [nzLoading]="false"
-      class="dark-themed-table"
-    >
+    <nz-table #statsTable [nzData]="filteredStats()" [nzPageSize]="15" [nzLoading]="false" [nzScroll]="{ x: '900px' }"
+      class="dark-themed-table">
       <thead>
         <tr>
           <th style="width: 60px; text-align: center;">Pos</th>
@@ -150,7 +139,8 @@
           <td style="text-align: center;">
             <div class="rating-display">
               <span class="rating-number">{{ data.average_rating.toFixed(2) }}</span>
-              <nz-icon nzType="setting" nzTheme="outline" class="star-icon" style="color: var(--primary-color); font-size: 12px;"></nz-icon>
+              <nz-icon nzType="setting" nzTheme="outline" class="star-icon"
+                style="color: var(--primary-color); font-size: 12px;"></nz-icon>
             </div>
           </td>
         </tr>
@@ -164,17 +154,11 @@
   </nz-card>
 
   <!-- Player Details Drawer -->
-  <nz-drawer
-    [nzVisible]="isDrawerVisible"
-    nzPlacement="right"
-    nzTitle="Ficha de Rendimiento"
-    (nzOnClose)="closePlayerDrawer()"
-    [nzWidth]="420"
-    nzClassName="dark-drawer"
-  >
+  <nz-drawer [nzVisible]="isDrawerVisible" nzPlacement="right" nzTitle="Ficha de Rendimiento"
+    (nzOnClose)="closePlayerDrawer()" [nzWidth]="420" nzClassName="dark-drawer">
     <ng-container *nzDrawerContent>
       <div *ngIf="selectedPlayerDetails() as player" class="drawer-profile-container">
-        
+
         <!-- Player Header Card -->
         <div class="player-header-card">
           <div class="header-avatar">⚽</div>
@@ -189,7 +173,7 @@
 
         <!-- Career Statistics Grid -->
         <nz-divider nzText="Estadísticas de Temporada"></nz-divider>
-        
+
         <div nz-row [nzGutter]="[12, 12]" class="drawer-stats-grid">
           <div nz-col nzSpan="12">
             <div class="stat-box">
@@ -245,7 +229,7 @@
                 {{ item.team === 'A' ? 'Verde' : 'Naranja' }}
               </nz-tag>
             </div>
-            
+
             <div class="item-body">
               <div class="result-flex">
                 <span class="score">Marcador: {{ item.match.team_a_score }} - {{ item.match.team_b_score }}</span>

@@ -3,24 +3,10 @@
   max-width: 1200px;
   margin: 0 auto;
 
-  .header-section {
-    margin-bottom: var(--spacing-xl);
-    text-align: left;
-    
-    h1 {
-      font-size: 2.5rem;
-      letter-spacing: -0.5px;
-      margin-bottom: var(--spacing-xs);
-      background: linear-gradient(135deg, var(--text-main) 60%, var(--primary-color));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    p {
-      color: var(--text-muted);
-      font-size: 1.1rem;
-    }
+  @media (max-width: 992px) {
+    padding: var(--spacing-md);
   }
+
 
   .selection-card {
     border-radius: var(--border-radius-base);
@@ -43,13 +29,13 @@
       .preset-buttons {
         display: flex;
         gap: var(--spacing-xs);
-        
+
         button {
           font-size: 0.75rem;
           background-color: var(--bg-input);
           border-color: var(--border-color);
           color: var(--text-main);
-          
+
           &:hover {
             border-color: var(--primary-color);
             color: var(--primary-color);
@@ -127,7 +113,7 @@
       .mode-selector {
         width: 100%;
         display: flex;
-        
+
         label {
           flex: 1;
           text-align: center;
@@ -161,7 +147,7 @@
         .suggestion-selector {
           display: flex;
           gap: var(--spacing-xs);
-          
+
           label {
             background-color: var(--bg-app) !important;
             border-color: var(--border-color) !important;
@@ -180,7 +166,7 @@
       .teams-display-row {
         display: flex;
         gap: var(--spacing-lg);
-        
+
         @media (max-width: 768px) {
           flex-direction: column;
         }
@@ -217,6 +203,7 @@
 
           &.team-a {
             border-color: var(--primary-color);
+
             .team-header {
               background-color: var(--primary-color);
             }
@@ -224,6 +211,7 @@
 
           &.team-b {
             border-color: #f97316; // Orange
+
             .team-header {
               background-color: #f97316;
             }
@@ -268,7 +256,7 @@
 
       .actions-section {
         margin-top: var(--spacing-lg);
-        
+
         .whatsapp-btn {
           height: 42px;
           background-color: var(--bg-input);
@@ -291,7 +279,7 @@
         background-color: var(--bg-app) !important;
         border-color: var(--border-color) !important;
         color: var(--text-main) !important;
-        
+
         ::ng-deep .ant-alert-message {
           color: var(--text-main) !important;
           font-weight: 600;
@@ -306,6 +294,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
