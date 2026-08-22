@@ -119,12 +119,13 @@
           <td>
             <div class="player-identity">
               <span class="nickname">{{ data.nickname }}</span>
-              <!-- <span class="full-name" *ngIf="data.name && data.name !== data.nickname">{{ data.name }}</span> -->
+              <span class="full-name" *ngIf="data.role === 'GK'">(PORTERO)</span>
+              <span class="full-name" *ngIf="data.role === 'Outfield' && data.preferred_position === 'GK'">(CAMPO)</span>
             </div>
           </td>
           <td>
-            <nz-tag [nzColor]="getPositionColor(data.preferred_position)">
-              {{ getPositionLabel(data.preferred_position) }}
+            <nz-tag [nzColor]="data.role === 'GK' ? 'orange' : getPositionColor(data.preferred_position === 'GK' ? 'MF' : data.preferred_position)">
+              {{ data.role === 'GK' ? 'POR' : getPositionLabel(data.preferred_position === 'GK' ? 'MF' : data.preferred_position) }}
             </nz-tag>
           </td>
           <td *ngIf="selectedMatchId() === 'ALL'" style="text-align: center;">{{ data.matches_played }}</td>

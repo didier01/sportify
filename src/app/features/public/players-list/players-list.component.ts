@@ -189,8 +189,12 @@ export class PlayersListComponent implements OnInit {
       for (const match of allMatches) {
         const { players, events } = await this.matchService.getMatchDetails(match.id);
         
-        // Check if player participated in this match
-        const mp = players.find(p => p.player_id === stats.player_id);
+        // Check if player participated in this match in the specific role
+        const mp = players.find(p => {
+          if (p.player_id !== stats.player_id) return false;
+          if (!stats.role) return true;
+          return stats.role === 'GK' ? !!p.is_gk : !p.is_gk;
+        });
         if (mp) {
           // Count goals and assists in this match
           const goals = events.filter(e => e.event_type === 'goal' && e.player_id === stats.player_id).length;

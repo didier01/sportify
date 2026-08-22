@@ -30,6 +30,7 @@ create table if not exists match_players (
   player_id uuid references players(id) on delete cascade not null,
   team char(1) not null check (team in ('A', 'B')),
   match_rating float check (match_rating >= 1.0 and match_rating <= 10.0),
+  is_gk boolean not null default false,
   primary key (match_id, player_id)
 );
 
@@ -55,6 +56,8 @@ select
   p.base_rating,
   p.is_active,
   p.is_deleted,
+  coalesce(mp.is_gk, false) as is_gk,
+  case when coalesce(mp.is_gk, false) then 'GK' else 'Outfield' end as role,
   -- Partidos Jugados
   count(distinct mp.match_id) as matches_played,
   -- Goles totales
@@ -75,4 +78,4 @@ left join match_players mp on mp.player_id = p.id
 left join matches m on m.id = mp.match_id
 left join match_events me on me.match_id = mp.match_id and (me.player_id = p.id or me.assistant_id = p.id)
 where p.is_deleted = false
-group by p.id, p.name, p.nickname, p.preferred_position, p.base_rating, p.is_active, p.is_deleted;
+group by p.id, p.name, p.nickname, p.preferred_position, p.base_rating, p.is_active, p.is_deleted, coalesce(mp.is_gk, false);

@@ -25,6 +25,7 @@ interface RosterPlayer {
   team: 'A' | 'B';
   rating: number;
   isMvp: boolean;
+  is_gk?: boolean;
 }
 
 @Component({
@@ -89,6 +90,7 @@ export class MatchLoggerComponent {
     this.roster = list.map(player => ({
       player,
       played: false,
+      is_gk: false,
       team: 'A',
       rating: 6.0
     }));
@@ -276,7 +278,8 @@ export class MatchLoggerComponent {
     const playersData: Omit<MatchPlayer, 'match_id'>[] = activeRoster.map(r => ({
       player_id: r.player.id,
       team: r.team,
-      match_rating: r.rating
+      match_rating: r.rating,
+      is_gk: r.is_gk
     }));
 
     // Formulate database events

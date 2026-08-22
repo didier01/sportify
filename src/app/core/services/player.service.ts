@@ -25,6 +25,7 @@ export interface PlayerStats {
   assists: number;
   win_rate: number;
   average_rating: number;
+  role?: 'GK' | 'Outfield';
 }
 
 @Injectable({
@@ -120,49 +121,76 @@ export class PlayerService {
     const events = JSON.parse(storedEvents);
     const matchPlayers = JSON.parse(storedMatchPlayers);
 
-    const statsList: PlayerStats[] = playersList.map(player => {
-      // Filter matches played
+    const statsList: PlayerStats[] = [];
+
+    playersList.forEach(player => {
       const participations = matchPlayers.filter((mp: any) => mp.player_id === player.id);
-      const matchesPlayed = participations.length;
-
-      // Count goals and assists
-      const goals = events.filter((e: any) => e.event_type === 'goal' && e.player_id === player.id).length;
-      const assists = events.filter((e: any) => e.event_type === 'goal' && e.assistant_id === player.id).length;
-
-      // Calificaciones
-      const ratings = participations
-        .map((mp: any) => mp.match_rating)
-        .filter((r: any) => r !== undefined && r !== null);
       
-      const averageRating = ratings.length > 0
-        ? ratings.reduce((sum: number, r: number) => sum + r, 0) / ratings.length
-        : player.base_rating;
+      const gkParticipations = participations.filter((mp: any) => mp.is_gk);
+      const outfieldParticipations = participations.filter((mp: any) => !mp.is_gk);
 
-      // Win rate
-      let wins = 0;
-      participations.forEach((mp: any) => {
-        const match = matches.find((m: any) => m.id === mp.match_id);
-        if (match) {
-          if (mp.team === 'A' && match.team_a_score > match.team_b_score) wins++;
-          else if (mp.team === 'B' && match.team_b_score > match.team_a_score) wins++;
-        }
-      });
-      const winRate = matchesPlayed > 0 ? (wins / matchesPlayed) * 100 : 0;
+      // If no participations yet, just return one default stat line based on preferred position
+      if (participations.length === 0) {
+        statsList.push({
+          player_id: player.id,
+          name: player.name || '',
+          nickname: player.nickname,
+          preferred_position: player.preferred_position,
+          base_rating: player.base_rating,
+          is_active: player.is_active,
+          is_deleted: player.is_deleted,
+          matches_played: 0,
+          goals: 0,
+          assists: 0,
+          win_rate: 0,
+          average_rating: player.base_rating,
+          role: player.preferred_position === 'GK' ? 'GK' : 'Outfield'
+        });
+        return;
+      }
 
-      return {
-        player_id: player.id,
-        name: player.name || '',
-        nickname: player.nickname,
-        preferred_position: player.preferred_position,
-        base_rating: player.base_rating,
-        is_active: player.is_active,
-        is_deleted: player.is_deleted,
-        matches_played: matchesPlayed,
-        goals,
-        assists,
-        win_rate: parseFloat(winRate.toFixed(1)),
-        average_rating: parseFloat(averageRating.toFixed(2))
+      // Helper to generate stats for a specific role
+      const generateRoleStats = (parts: any[], role: 'GK' | 'Outfield') => {
+        if (parts.length === 0) return;
+
+        const matchesPlayed = parts.length;
+        const matchIds = new Set(parts.map((p: any) => p.match_id));
+
+        const goals = events.filter((e: any) => e.event_type === 'goal' && e.player_id === player.id && matchIds.has(e.match_id)).length;
+        const assists = events.filter((e: any) => e.event_type === 'goal' && e.assistant_id === player.id && matchIds.has(e.match_id)).length;
+
+        const ratings = parts.map((mp: any) => mp.match_rating).filter((r: any) => r !== undefined && r !== null);
+        const averageRating = ratings.length > 0 ? ratings.reduce((sum: number, r: number) => sum + r, 0) / ratings.length : player.base_rating;
+
+        let wins = 0;
+        parts.forEach((mp: any) => {
+          const match = matches.find((m: any) => m.id === mp.match_id);
+          if (match) {
+            if (mp.team === 'A' && match.team_a_score > match.team_b_score) wins++;
+            else if (mp.team === 'B' && match.team_b_score > match.team_a_score) wins++;
+          }
+        });
+        const winRate = matchesPlayed > 0 ? (wins / matchesPlayed) * 100 : 0;
+
+        statsList.push({
+          player_id: player.id,
+          name: player.name || '',
+          nickname: player.nickname,
+          preferred_position: player.preferred_position,
+          base_rating: player.base_rating,
+          is_active: player.is_active,
+          is_deleted: player.is_deleted,
+          matches_played: matchesPlayed,
+          goals,
+          assists,
+          win_rate: parseFloat(winRate.toFixed(1)),
+          average_rating: parseFloat(averageRating.toFixed(2)),
+          role
+        });
       };
+
+      generateRoleStats(gkParticipations, 'GK');
+      generateRoleStats(outfieldParticipations, 'Outfield');
     });
 
     this.playerStatsState.set(statsList);

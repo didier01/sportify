@@ -83,6 +83,7 @@
         <div class="roster-list-header">
           <span class="col-lbl player-name-header">Jugador</span>
           <span class="col-lbl center-header">¿Jugó?</span>
+          <span class="col-lbl center-header">POR?</span>
           <span class="col-lbl center-header">Equipo</span>
           <span class="col-lbl center-header rating-col-header">Nota</span>
         </div>
@@ -106,6 +107,15 @@
                 [(ngModel)]="item.played" 
                 (ngModelChange)="calculateScores()"
               ></label>
+            </div>
+
+            <div class="col-val center-col gk-col">
+              <label 
+                nz-checkbox 
+                *ngIf="item.played"
+                [(ngModel)]="item.is_gk"
+              >🧤</label>
+              <span *ngIf="!item.played" class="inactive-placeholder">-</span>
             </div>
 
             <div class="col-val center-col team-col">

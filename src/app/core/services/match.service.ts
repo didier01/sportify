@@ -19,6 +19,7 @@ export interface MatchPlayer {
   player_id: string;
   team: 'A' | 'B';
   match_rating?: number;
+  is_gk?: boolean;
 }
 
 export interface MatchEvent {
