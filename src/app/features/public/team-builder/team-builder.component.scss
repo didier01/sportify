@@ -7,6 +7,20 @@
     padding: var(--spacing-md);
   }
 
+  .header-section {
+    .info-link {
+      color: var(--primary-color);
+      cursor: pointer;
+      text-decoration: underline;
+      font-weight: 600;
+      margin-left: 6px;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: var(--primary-color-hover);
+      }
+    }
+  }
 
   .selection-card {
     border-radius: var(--border-radius-base);

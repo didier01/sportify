@@ -14,6 +14,7 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzModalModule } from 'ng-zorro-antd/modal';
 
 interface TeamCombination {
   teamA: Player[];
@@ -38,7 +39,8 @@ interface TeamCombination {
     NzTagModule,
     NzDividerModule,
     NzAlertModule,
-    NzInputModule
+    NzInputModule,
+    NzModalModule
   ],
   templateUrl: './team-builder.component.html',
   styleUrls: ['./team-builder.component.scss']
@@ -63,6 +65,17 @@ export class TeamBuilderComponent {
     }
     return list;
   });
+
+  // Info modal state
+  isInfoModalVisible = false;
+
+  showInfoModal(): void {
+    this.isInfoModalVisible = true;
+  }
+
+  closeInfoModal(): void {
+    this.isInfoModalVisible = false;
+  }
 
   // Selected players map: { [id: string]: boolean }
   selectedPlayersMap = signal<{ [id: string]: boolean }>({});

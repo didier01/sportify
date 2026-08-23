@@ -1,8 +1,32 @@
 <div class="team-builder-container">
   <div class="header-section">
     <h1>BALANCEADOR DE EQUIPOS</h1>
-    <p>Selecciona los convocados y genera emparejamientos equitativos al instante.</p>
+    <p>
+      Genera equipos equitativos basados en rendimiento y posición automáticamente. 
+      <a (click)="showInfoModal()" class="info-link">¿Cómo funciona?</a>
+    </p>
   </div>
+
+  <nz-modal [(nzVisible)]="isInfoModalVisible" nzTitle="¿Cómo funciona el Balanceador?" (nzOnCancel)="closeInfoModal()" (nzOnOk)="closeInfoModal()" nzClassName="dark-modal" [nzFooter]="null">
+    <div *nzModalContent class="info-modal-content">
+      <p>El balanceador analiza matemáticamente todas las combinaciones posibles de los jugadores seleccionados para encontrar los equipos más parejos basándose en 3 estrategias:</p>
+      
+      <div class="info-strategy">
+        <h4><nz-icon nzType="sliders" nzTheme="outline"></nz-icon> Híbrido (Recomendado)</h4>
+        <p>Busca el equilibrio perfecto. Intenta que ambos equipos tengan una calificación total casi idéntica, pero al mismo tiempo se asegura de que la cantidad de defensas, mediocampistas y delanteros esté repartida de manera justa.</p>
+      </div>
+      
+      <div class="info-strategy">
+        <h4><nz-icon nzType="star" nzTheme="outline"></nz-icon> Solo Nivel</h4>
+        <p>Ignora por completo las posiciones de los jugadores. Su único objetivo es que la suma de la valoración (estrellas) del Equipo A sea lo más cercana posible a la del Equipo B.</p>
+      </div>
+
+      <div class="info-strategy">
+        <h4><nz-icon nzType="team" nzTheme="outline"></nz-icon> Solo Posiciones</h4>
+        <p>Prioriza estrictamente que ambos equipos tengan la misma cantidad de porteros, defensas, etc. Solo usa el nivel (estrellas) como criterio secundario para desempatar combinaciones similares.</p>
+      </div>
+    </div>
+  </nz-modal>
 
   <div nz-row [nzGutter]="16">
     <!-- Left Column: Player Selection -->

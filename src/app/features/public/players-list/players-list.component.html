@@ -1,8 +1,42 @@
 <div class="leaderboard-container">
   <div class="header-section">
     <h1>ESTADÍSTICAS DEL EQUIPO</h1>
-    <p>Historial acumulado y rendimiento individual de los partidos semanales.</p>
+    <p>
+      Ranking y estadísticas acumuladas basadas en los partidos registrados.
+      <a (click)="showInfoModal()" class="info-link">¿Cómo se calcula?</a>
+    </p>
   </div>
+
+  <nz-modal [(nzVisible)]="isInfoModalVisible" nzTitle="Guía de Estadísticas" (nzOnCancel)="closeInfoModal()"
+    (nzOnOk)="closeInfoModal()" nzClassName="dark-modal" [nzFooter]="null">
+    <div *nzModalContent class="info-modal-content">
+      <p>Todas las estadísticas se calculan en tiempo real sumando los datos de todos los partidos donde haya
+        participado el jugador.</p>
+
+      <div class="info-strategy">
+        <h4><nz-icon nzType="star" nzTheme="outline"></nz-icon> Calificación Promedio</h4>
+        <p>Es el promedio de las valoraciones de 0 a 10 recibidas en cada partido. La calificación de un partido se <strong>calcula mediante un algoritmo</strong> que evalúa:</p>
+        <ul style="margin-top: 8px; margin-bottom: 0; padding-left: 20px; font-size: 0.85rem;">
+          <li><strong>Nota Base:</strong> Todos inician con un puntaje derivado de su nivel inicial.</li>
+          <li><strong>Resultado:</strong> +0.5 puntos por victoria y -0.5 por derrota.</li>
+          <li><strong>Ataque:</strong> Goles y asistencias suman puntos según la posición (los goles de porteros o defensas valen más que los de delanteros).</li>
+          <li><strong>Defensa:</strong> Pequeña penalidad por goles recibidos en contra, la cual afecta un poco más a porteros y defensas.</li>
+        </ul>
+      </div>
+
+      <div class="info-strategy">
+        <h4><nz-icon nzType="percentage" nzTheme="outline"></nz-icon> Promedio de Victorias</h4>
+        <p>Se calcula dividiendo los partidos ganados entre el total de partidos jugados por ese jugador, multiplicado
+          por 100.</p>
+      </div>
+
+      <div class="info-strategy">
+        <h4><nz-icon nzType="plus" nzTheme="outline"></nz-icon> G+A (Goles + Asistencias)</h4>
+        <p>Es la suma total de goles y asistencias. Esta métrica es clave para definir al jugador más determinante
+          ofensivamente. El ranking principal se ordena usando esta métrica de mayor a menor.</p>
+      </div>
+    </div>
+  </nz-modal>
 
   <!-- Top Performers Highlights -->
   <div nz-row [nzGutter]="16" class="highlights-grid">
@@ -120,12 +154,15 @@
             <div class="player-identity">
               <span class="nickname">{{ data.nickname }}</span>
               <span class="full-name" *ngIf="data.role === 'GK'">(PORTERO)</span>
-              <span class="full-name" *ngIf="data.role === 'Outfield' && data.preferred_position === 'GK'">(CAMPO)</span>
+              <span class="full-name"
+                *ngIf="data.role === 'Outfield' && data.preferred_position === 'GK'">(CAMPO)</span>
             </div>
           </td>
           <td>
-            <nz-tag [nzColor]="data.role === 'GK' ? 'orange' : getPositionColor(data.preferred_position === 'GK' ? 'MF' : data.preferred_position)">
-              {{ data.role === 'GK' ? 'POR' : getPositionLabel(data.preferred_position === 'GK' ? 'MF' : data.preferred_position) }}
+            <nz-tag
+              [nzColor]="data.role === 'GK' ? 'orange' : getPositionColor(data.preferred_position === 'GK' ? 'MF' : data.preferred_position)">
+              {{ data.role === 'GK' ? 'POR' : getPositionLabel(data.preferred_position === 'GK' ? 'MF' :
+              data.preferred_position) }}
             </nz-tag>
           </td>
           <td *ngIf="selectedMatchId() === 'ALL'" style="text-align: center;">{{ data.matches_played }}</td>
@@ -253,7 +290,8 @@
             <div class="item-header">
               <span class="date">{{ item.match.date | date:'dd MMM yyyy' }}</span>
               <div class="header-tags" style="display: flex; gap: 4px;">
-                <nz-tag [nzColor]="getResultColor(getMatchResult(item))" [class.draw-tag]="getMatchResult(item) === 'D'">
+                <nz-tag [nzColor]="getResultColor(getMatchResult(item))"
+                  [class.draw-tag]="getMatchResult(item) === 'D'">
                   {{ getMatchResult(item) === 'W' ? 'Victoria' : (getMatchResult(item) === 'L' ? 'Derrota' : 'Empate')
                   }}
                 </nz-tag>

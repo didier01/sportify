@@ -15,6 +15,7 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzModalModule } from 'ng-zorro-antd/modal';
 
 interface PlayerMatchHistory {
   match: Match;
@@ -41,19 +42,32 @@ interface PlayerMatchHistory {
     NzTagModule,
     NzDrawerModule,
     NzDividerModule,
-    NzSpinModule
+    NzSpinModule,
+    NzModalModule
   ],
   templateUrl: './players-list.component.html',
   styleUrls: ['./players-list.component.scss']
 })
 export class PlayersListComponent implements OnInit {
   private playerService = inject(PlayerService);
+  private matchService = inject(MatchService); // Added missing MatchService injection for matches property
 
   // Filter signals
   searchQuery = signal<string>('');
   positionFilter = signal<string>('ALL');
   selectedMatchId = signal<string>('ALL');
   matchSpecificStats = signal<PlayerStats[]>([]);
+
+  // Info modal state
+  isInfoModalVisible = false;
+
+  showInfoModal(): void {
+    this.isInfoModalVisible = true;
+  }
+
+  closeInfoModal(): void {
+    this.isInfoModalVisible = false;
+  }
 
   // Expose matches for dropdown
   get matches() {
@@ -68,8 +82,8 @@ export class PlayersListComponent implements OnInit {
     let stats = isGlobal ? this.playerService.playerStats() : this.matchSpecificStats();
 
     if (query) {
-      stats = stats.filter(s => 
-        s.nickname.toLowerCase().includes(query) || 
+      stats = stats.filter(s =>
+        s.nickname.toLowerCase().includes(query) ||
         (s.name && s.name.toLowerCase().includes(query))
       );
     }
@@ -116,7 +130,7 @@ export class PlayersListComponent implements OnInit {
   playerHistory = signal<PlayerMatchHistory[]>([]);
   isLoadingHistory = signal(false);
 
-  private matchService = inject(MatchService);
+
 
   ngOnInit(): void {
     this.playerService.loadAll();
@@ -124,7 +138,7 @@ export class PlayersListComponent implements OnInit {
 
   async onMatchChange(matchId: string): Promise<void> {
     this.selectedMatchId.set(matchId);
-    
+
     if (matchId === 'ALL') {
       this.matchSpecificStats.set([]);
       return;
@@ -145,7 +159,7 @@ export class PlayersListComponent implements OnInit {
         const pInfo = allPlayers.find(p => p.id === mp.player_id);
         const goals = events.filter(e => e.event_type === 'goal' && e.player_id === mp.player_id).length;
         const assists = events.filter(e => e.event_type === 'goal' && e.assistant_id === mp.player_id).length;
-        
+
         let wins = 0, losses = 0, draws = 0;
         if (isDraw) {
           draws = 1;
@@ -188,7 +202,7 @@ export class PlayersListComponent implements OnInit {
 
       for (const match of allMatches) {
         const { players, events } = await this.matchService.getMatchDetails(match.id);
-        
+
         // Check if player participated in this match in the specific role
         const mp = players.find(p => {
           if (p.player_id !== stats.player_id) return false;
@@ -278,8 +292,8 @@ export class PlayersListComponent implements OnInit {
   }
 
   getTeamColorName(item: PlayerMatchHistory): string {
-    return item.team === 'A' 
-      ? (item.match.team_a_color || 'Verde') 
+    return item.team === 'A'
+      ? (item.match.team_a_color || 'Verde')
       : (item.match.team_b_color || 'Naranja');
   }
 
