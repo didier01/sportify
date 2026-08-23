@@ -285,8 +285,6 @@ h6 {
   // border-color: var(--border-color) !important;
 }
 
-
-
 /* Pagination Dark Theme Overrides */
 .ant-pagination-item,
 .ant-pagination-prev .ant-pagination-item-link,
@@ -595,5 +593,13 @@ h6 {
     position: relative;
     padding: 5px 5px;
     overflow-wrap: break-word;
+  }
+}
+
+@media (max-width: 480px) {
+  .ant-tag {
+    font-size: 0.6rem !important;
+    padding: 0 3px;
+    line-height: inherit;
   }
 }

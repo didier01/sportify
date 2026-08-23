@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatchService, Match, MatchPlayer, MatchEvent } from '../../../core/services/match.service';
@@ -58,6 +58,39 @@ export class MatchesHistoryComponent {
   matches = this.matchService.matches;
   allPlayersList = this.playerService.players;
   teamColors = ['Rojo', 'Amarillo', 'Azul', 'Verde', 'Rosado', 'Naranja', 'Blanco', 'Negro'];
+
+  // Pagination & Grouping
+  pageSize = signal(10);
+
+  groupedMatches = computed(() => {
+    const allMatches = this.matches();
+    const limit = this.pageSize();
+    const sliced = allMatches.slice(0, limit);
+
+    const groups: { monthYear: string; matches: Match[] }[] = [];
+    const map = new Map<string, Match[]>();
+
+    sliced.forEach(match => {
+      const d = new Date(match.date);
+      const formatter = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+      const monthYearRaw = formatter.format(d);
+      const monthYear = monthYearRaw.charAt(0).toUpperCase() + monthYearRaw.slice(1);
+
+      if (!map.has(monthYear)) {
+        map.set(monthYear, []);
+        groups.push({ monthYear, matches: map.get(monthYear)! });
+      }
+      map.get(monthYear)!.push(match);
+    });
+
+    return groups;
+  });
+
+  hasMore = computed(() => this.matches().length > this.pageSize());
+
+  loadMore() {
+    this.pageSize.update(v => v + 10);
+  }
 
   // Selected match details state
   selectedMatchDetails = signal<MatchDetails | null>(null);

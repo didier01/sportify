@@ -32,10 +32,43 @@
         <span class="nav-label">Salir</span>
       </a>
     </nav>
+    <!-- Mobile Logout Button (Visible only on mobile when admin) -->
+    <a *ngIf="authService.isAdmin()" (click)="authService.logout()" class="mobile-logout-btn">
+      <nz-icon nzType="logout" nzTheme="outline"></nz-icon>
+    </a>
   </header>
 
   <!-- Main Content Wrapper -->
   <main class="app-main">
     <router-outlet></router-outlet>
   </main>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="mobile-bottom-nav">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="bottom-nav-item">
+      <div class="nav-indicator"></div>
+      <nz-icon nzType="trophy" nzTheme="outline" class="nav-icon"></nz-icon>
+      <span class="nav-label">Ranking</span>
+    </a>
+    <a routerLink="/balance" routerLinkActive="active" class="bottom-nav-item">
+      <div class="nav-indicator"></div>
+      <nz-icon nzType="team" nzTheme="outline" class="nav-icon"></nz-icon>
+      <span class="nav-label">Equipos</span>
+    </a>
+    <a *ngIf="authService.isAdmin()" routerLink="/log-match" routerLinkActive="active" class="bottom-nav-item">
+      <div class="nav-indicator"></div>
+      <nz-icon nzType="calendar" nzTheme="outline" class="nav-icon"></nz-icon>
+      <span class="nav-label">Jugar</span>
+    </a>
+    <a routerLink="/matches" routerLinkActive="active" class="bottom-nav-item">
+      <div class="nav-indicator"></div>
+      <nz-icon nzType="file-text" nzTheme="outline" class="nav-icon"></nz-icon>
+      <span class="nav-label">Historial</span>
+    </a>
+    <a *ngIf="authService.isAdmin()" routerLink="/players" routerLinkActive="active" class="bottom-nav-item">
+      <div class="nav-indicator"></div>
+      <nz-icon nzType="user" nzTheme="outline" class="nav-icon"></nz-icon>
+      <span class="nav-label">Plantilla</span>
+    </a>
+  </nav>
 </div>

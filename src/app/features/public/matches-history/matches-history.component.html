@@ -4,43 +4,59 @@
     <p>Revisa los marcadores, alineaciones, valoraciones y videos de los partidos anteriores.</p>
   </div>
 
-  <!-- Cards Grid for matches -->
-  <div nz-row [nzGutter]="24" class="matches-grid">
-    <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" *ngFor="let match of matches()">
-      <nz-card class="match-summary-card">
-        <div class="card-header">
-          <span class="match-date">{{ match.date | date:'EEEE, dd LLLL yyyy' }}</span>
-          <a *ngIf="match.youtube_url" [href]="match.youtube_url" target="_blank" class="yt-link"
-            (click)="$event.stopPropagation()">
-            <nz-icon nzType="play-circle" nzTheme="outline"></nz-icon>
-          </a>
-        </div>
+  <!-- Groups Grid for matches -->
+  <div class="matches-group-container" *ngFor="let group of groupedMatches()">
+    <div class="month-header">
+      <span class="month-title">{{ group.monthYear }}</span>
+      <div class="month-line"></div>
+    </div>
 
-        <div class="card-body">
-          <div class="score-display">
-            <div class="team" [ngClass]="'team-' + (match.team_a_color ? match.team_a_color.toLowerCase() : 'verde')">
-              <span class="name">{{ match.team_a_color || 'Verde' }}</span>
-              <span class="goals">{{ match.team_a_score }}</span>
-            </div>
-            <div class="vs">vs</div>
-            <div class="team" [ngClass]="'team-' + (match.team_b_color ? match.team_b_color.toLowerCase() : 'naranja')">
-              <span class="goals">{{ match.team_b_score }}</span>
-              <span class="name">{{ match.team_b_color || 'Naranja' }}</span>
+    <div nz-row [nzGutter]="24" class="matches-grid">
+      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" *ngFor="let match of group.matches">
+        <nz-card class="match-summary-card">
+          <div class="card-header">
+            <span class="match-date">{{ match.date | date:'EEEE, dd LLLL yyyy':'UTC' }}</span>
+            <a *ngIf="match.youtube_url" [href]="match.youtube_url" target="_blank" class="yt-link"
+              (click)="$event.stopPropagation()">
+              <nz-icon nzType="play-circle" nzTheme="outline"></nz-icon>
+            </a>
+          </div>
+
+          <div class="card-body">
+            <div class="score-display">
+              <div class="team" [ngClass]="'team-' + (match.team_a_color ? match.team_a_color.toLowerCase() : 'verde')">
+                <span class="name">{{ match.team_a_color || 'Verde' }}</span>
+                <span class="goals">{{ match.team_a_score }}</span>
+              </div>
+              <div class="vs">vs</div>
+              <div class="team" [ngClass]="'team-' + (match.team_b_color ? match.team_b_color.toLowerCase() : 'naranja')">
+                <span class="goals">{{ match.team_b_score }}</span>
+                <span class="name">{{ match.team_b_color || 'Naranja' }}</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="card-footer" style="display: flex; gap: 8px;">
-          <button nz-button nzType="default" style="flex: 1;" (click)="openMatchDetails(match)">
-            Ver Ficha
-          </button>
-          <button *ngIf="authService.isAdmin()" nz-button nzType="text" nzDanger nz-popconfirm nzPopconfirmTitle="¿Eliminar partido?"
-            (nzOnConfirm)="deleteMatch(match)" (click)="$event.stopPropagation()">
-            <nz-icon nzType="delete" nzTheme="outline"></nz-icon>
-          </button>
-        </div>
-      </nz-card>
+          <div class="card-footer" style="display: flex; gap: 8px;">
+            <button nz-button nzType="default" style="flex: 1;" (click)="openMatchDetails(match)">
+              Ver Ficha
+            </button>
+            <button *ngIf="authService.isAdmin()" nz-button nzType="text" nzDanger nz-popconfirm nzPopconfirmTitle="¿Eliminar partido?"
+              (nzOnConfirm)="deleteMatch(match)" (click)="$event.stopPropagation()">
+              <nz-icon nzType="delete" nzTheme="outline"></nz-icon>
+            </button>
+          </div>
+        </nz-card>
+      </div>
     </div>
+  </div>
+
+  <!-- Load More Button -->
+  <div class="load-more-container" *ngIf="hasMore()">
+    <button nz-button nzType="default" nzShape="round" (click)="loadMore()" class="load-more-btn">
+      Cargar más partidos
+      <nz-icon nzType="down" nzTheme="outline"></nz-icon>
+    </button>
+  </div>
 
     <!-- Empty state -->
     <div nz-col nzSpan="24" *ngIf="matches().length === 0" class="empty-state">
@@ -52,7 +68,6 @@
         </div>
       </nz-card>
     </div>
-  </div>
 
   <!-- Match details Modal -->
   <nz-modal [(nzVisible)]="isModalVisible" nzTitle="Ficha del Partido" (nzOnCancel)="handleCloseModal()" nzWidth="720px"

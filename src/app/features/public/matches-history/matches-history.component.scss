@@ -16,9 +16,66 @@ $team-colors: (
 
   @media (max-width: 992px) {
     padding: var(--spacing-md);
+
+    ::ng-deep .ant-card-body {
+      padding: 14px;
+    }
   }
 
 
+
+  .matches-group-container {
+    margin-bottom: var(--spacing-sm);
+
+    .month-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: var(--spacing-md);
+
+      .month-title {
+        font-family: var(--font-family-heading);
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+
+        @media (max-width: 768px) {
+          font-size: 0.7rem;
+        }
+      }
+
+      .month-line {
+        flex: 1;
+        height: 1px;
+        background-color: var(--border-color);
+        opacity: 0.5;
+      }
+    }
+  }
+
+  .load-more-container {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+
+    .load-more-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background-color: var(--bg-card);
+      border-color: var(--border-color);
+      color: var(--text-main);
+      font-weight: 600;
+
+      &:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+      }
+    }
+  }
 
   .matches-grid {
     .match-summary-card {
@@ -359,7 +416,8 @@ $team-colors: (
 
         .lineup-title {
           background-color: $color;
-          @if $name == 'blanco' {
+
+          @if $name =='blanco' {
             color: #000;
           }
         }
@@ -385,7 +443,8 @@ $team-colors: (
       @each $name, $color in $team-colors {
         &.team-#{$name} {
           background-color: $color;
-          @if $name == 'blanco' {
+
+          @if $name =='blanco' {
             color: #000;
           }
         }

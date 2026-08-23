@@ -86,20 +86,8 @@
   @media (max-width: 992px) {
     padding: 0 var(--spacing-md);
     
-    .logo-text {
-      display: none; /* Hide logo text on small screens to fit nav items */
-    }
-
     .header-nav {
-      gap: 4px;
-      
-      .nav-item {
-        padding: var(--spacing-sm);
-        
-        .nav-label {
-          display: none; /* Icon-only on mobile */
-        }
-      }
+      display: none; /* Hide top nav on mobile */
     }
   }
 }
@@ -108,6 +96,98 @@
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+}
+
+/* Default state: hidden on desktop */
+.mobile-bottom-nav, .mobile-logout-btn {
+  display: none;
+}
+
+@media (max-width: 992px) {
+  .app-main {
+    padding-bottom: 70px; /* Space for the bottom nav */
+  }
+
+  .mobile-logout-btn {
+    display: block;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    transition: color 0.3s ease;
+    
+    &:hover {
+      color: #ef4444; /* red-500 */
+    }
+  }
+
+  .mobile-bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 65px;
+    background-color: rgba(17, 24, 39, 0.85); /* Glassmorphism background */
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border-color);
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom); /* For iOS devices */
+
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      text-decoration: none;
+      flex: 1;
+      height: 100%;
+      position: relative;
+      transition: all 0.3s ease;
+
+      .nav-icon {
+        font-size: 1.2rem;
+        margin-bottom: 4px;
+        z-index: 2;
+        transition: color 0.3s ease;
+      }
+
+      .nav-label {
+        font-size: 0.65rem;
+        font-weight: 500;
+        z-index: 2;
+        transition: color 0.3s ease;
+      }
+
+      .nav-indicator {
+        position: absolute;
+        top: 8px;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        width: 60px;
+        background-color: rgba(16, 185, 129, 0.15); /* Pill background using primary color */
+        border-radius: 20px;
+        z-index: 1;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      &.active {
+        color: var(--primary-color);
+
+        .nav-icon, .nav-label {
+          color: var(--primary-color);
+        }
+
+        .nav-indicator {
+          transform: translateX(-50%) scale(1);
+        }
+      }
+    }
+  }
 }
 
 @keyframes bounce {
