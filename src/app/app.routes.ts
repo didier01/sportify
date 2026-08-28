@@ -29,6 +29,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/public/matches-history/matches-history.component').then(m => m.MatchesHistoryComponent)
   },
   {
+    path: 'historial',
+    redirectTo: 'matches'
+  },
+  {
     path: '**',
     redirectTo: ''
   }
