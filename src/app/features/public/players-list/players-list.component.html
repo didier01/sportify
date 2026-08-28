@@ -250,22 +250,28 @@
               <span class="val" style="color: var(--error-color);">{{ getPlayerLosses() }}</span>
             </div>
           </div>
-          <div nz-col nzSpan="8">
+          <div nz-col nzSpan="6">
             <div class="stat-box">
               <span class="lbl">Goles</span>
               <span class="val highlight-goals">{{ player.goals }}</span>
             </div>
           </div>
-          <div nz-col nzSpan="8">
+          <div nz-col nzSpan="6">
             <div class="stat-box">
-              <span class="lbl">Asistencias</span>
+              <span class="lbl">Asist</span>
               <span class="val highlight-assists">{{ player.assists }}</span>
             </div>
           </div>
-          <div nz-col nzSpan="8">
+          <div nz-col nzSpan="6">
             <div class="stat-box">
               <span class="lbl">G+A</span>
               <span class="val">{{ player.goals + player.assists }}</span>
+            </div>
+          </div>
+          <div nz-col nzSpan="6">
+            <div class="stat-box">
+              <span class="lbl">Autogoles</span>
+              <span class="val" style="color: var(--error-color);">{{ player.own_goals || 0 }}</span>
             </div>
           </div>
 

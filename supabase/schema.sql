@@ -38,7 +38,7 @@ create table if not exists match_players (
 create table if not exists match_events (
   id uuid default gen_random_uuid() primary key,
   match_id uuid references matches(id) on delete cascade not null,
-  event_type text not null check (event_type in ('goal', 'card_yellow', 'card_red', 'mvp')),
+  event_type text not null check (event_type in ('goal', 'own_goal', 'card_yellow', 'card_red', 'mvp')),
   minute integer check (minute >= 0),
   time_str text,
   player_id uuid references players(id) on delete cascade not null,
@@ -60,8 +60,10 @@ select
   case when coalesce(mp.is_gk, false) then 'GK' else 'Outfield' end as role,
   -- Partidos Jugados
   count(distinct mp.match_id) as matches_played,
-  -- Goles totales
+  -- Goles totales (sin contar autogoles)
   count(distinct case when me.event_type = 'goal' and me.player_id = p.id then me.id end) as goals,
+  -- Autogoles totales
+  count(distinct case when me.event_type = 'own_goal' and me.player_id = p.id then me.id end) as own_goals,
   -- Asistencias totales
   count(distinct case when me.event_type = 'goal' and me.assistant_id = p.id then me.id end) as assists,
   -- Win Rate (%)

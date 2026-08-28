@@ -1,9 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatchService, Match, MatchPlayer, MatchEvent } from '../../../core/services/match.service';
 import { PlayerService, Player } from '../../../core/services/player.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -17,11 +18,12 @@ import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
 interface MatchDetails {
   match: Match;
-  teamA: { player: Player; rating: number; isMvp: boolean; goals: number; assists: number; }[];
-  teamB: { player: Player; rating: number; isMvp: boolean; goals: number; assists: number; }[];
+  teamA: { player: Player; rating: number; isMvp: boolean; goals: number; own_goals: number; assists: number; }[];
+  teamB: { player: Player; rating: number; isMvp: boolean; goals: number; own_goals: number; assists: number; }[];
   goals: { minute: number; scorerId?: string; assistantId?: string | null; scorer?: string; assistant?: string; team?: 'A' | 'B' }[];
   mvpNickname?: string;
 }
@@ -42,7 +44,8 @@ interface MatchDetails {
     NzInputNumberModule,
     NzPopconfirmModule,
     NzButtonModule,
-    NzSelectModule
+    NzSelectModule,
+    NzTooltipModule
   ],
   templateUrl: './matches-history.component.html',
   styleUrls: ['./matches-history.component.scss']
@@ -52,12 +55,34 @@ export class MatchesHistoryComponent {
   private playerService = inject(PlayerService);
   private modal = inject(NzModalService);
   private msg = inject(NzMessageService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
   authService = inject(AuthService); // Inyectamos como public para el template
 
   // Expose matches list signal
   matches = this.matchService.matches;
   allPlayersList = this.playerService.players;
   teamColors = ['Rojo', 'Amarillo', 'Azul', 'Verde', 'Rosado', 'Naranja', 'Blanco', 'Negro'];
+
+  constructor() {
+    effect(() => {
+      const matchId = this.route.snapshot.queryParamMap.get('matchId');
+      const allMatches = this.matches();
+      
+      // If matches are loaded and there's a matchId in URL
+      if (matchId && allMatches.length > 0 && !this.isModalVisible) {
+        const match = allMatches.find(m => m.id === matchId);
+        if (match) {
+          // Open details asynchronously to avoid effect constraints
+          setTimeout(() => {
+            this.openMatchDetails(match);
+            // Clear URL parameter so it doesn't reopen if the user closes the modal
+            this.router.navigate([], { queryParams: { matchId: null }, queryParamsHandling: 'merge' });
+          });
+        }
+      }
+    });
+  }
 
   // Pagination & Grouping
   pageSize = signal(10);
@@ -103,8 +128,8 @@ export class MatchesHistoryComponent {
   editScoreB = 0;
   editTeamAColor = 'Verde';
   editTeamBColor = 'Naranja';
-  editTeamA: { player: Player; rating: number; isMvp: boolean; goals: number; assists: number; }[] = [];
-  editTeamB: { player: Player; rating: number; isMvp: boolean; goals: number; assists: number; }[] = [];
+  editTeamA: { player: Player; rating: number; isMvp: boolean; goals: number; own_goals: number; assists: number; }[] = [];
+  editTeamB: { player: Player; rating: number; isMvp: boolean; goals: number; own_goals: number; assists: number; }[] = [];
   editGoals: { id?: string; minute: number; scorerId: string; assistantId?: string | null; scorer?: string; assistant?: string; team?: 'A' | 'B' }[] = [];
 
   // Add goal form
@@ -119,6 +144,33 @@ export class MatchesHistoryComponent {
     } catch (e) {
       console.error(e);
       this.msg.error('Error al eliminar el partido');
+    }
+  }
+
+  async shareMatch(matchId: string, event: Event): Promise<void> {
+    event.stopPropagation();
+    const url = `${window.location.origin}/historial?matchId=${matchId}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Ficha de Partido - FutStats',
+          text: '¡Mira las estadísticas y el resumen de este partido!',
+          url: url
+        });
+        // Si el usuario comparte exitosamente, no es necesario mostrar alerta
+      } catch (err) {
+        // El usuario canceló o hubo un error, ignoramos silenciosamente
+        console.log('Error sharing:', err);
+      }
+    } else {
+      // Fallback para escritorio o navegadores sin Web Share API
+      navigator.clipboard.writeText(url).then(() => {
+        this.msg.success('¡Enlace del partido copiado al portapapeles!');
+      }).catch(err => {
+        console.error('Failed to copy', err);
+        this.msg.error('Error al copiar el enlace');
+      });
     }
   }
 
@@ -267,13 +319,14 @@ export class MatchesHistoryComponent {
       const mvpPlayer = allPlayers.find(p => p.id === mvpPlayerId);
 
       // Separate teams and count goals/assists
-      const teamA: { player: Player; rating: number; isMvp: boolean; goals: number; assists: number; }[] = [];
-      const teamB: { player: Player; rating: number; isMvp: boolean; goals: number; assists: number; }[] = [];
+      const teamA: { player: Player; rating: number; isMvp: boolean; goals: number; own_goals: number; assists: number; }[] = [];
+      const teamB: { player: Player; rating: number; isMvp: boolean; goals: number; own_goals: number; assists: number; }[] = [];
 
       players.forEach(mp => {
         const player = allPlayers.find(p => p.id === mp.player_id);
         if (player) {
           const goalsCount = events.filter(e => e.event_type === 'goal' && e.player_id === player.id).length;
+          const ownGoalsCount = events.filter(e => e.event_type === 'own_goal' && e.player_id === player.id).length;
           const assistsCount = events.filter(e => e.event_type === 'goal' && e.assistant_id === player.id).length;
 
           const item = {
@@ -281,6 +334,7 @@ export class MatchesHistoryComponent {
             rating: mp.match_rating || 6.0,
             isMvp: player.id === mvpPlayerId,
             goals: goalsCount,
+            own_goals: ownGoalsCount,
             assists: assistsCount
           };
           if (mp.team === 'A') teamA.push(item);

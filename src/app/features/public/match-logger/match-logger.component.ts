@@ -137,8 +137,15 @@ export class MatchLoggerComponent {
     this.goalsTimeline.forEach(goal => {
       const rosterItem = this.roster.find(r => r.player.id === goal.player_id);
       if (rosterItem && rosterItem.played) {
-        if (rosterItem.team === 'A') scoreA++;
-        else scoreB++;
+        if (goal.event_type === 'own_goal') {
+          // Point goes to opposing team
+          if (rosterItem.team === 'A') scoreB++;
+          else scoreA++;
+        } else {
+          // Normal goal
+          if (rosterItem.team === 'A') scoreA++;
+          else scoreB++;
+        }
       }
     });
 
@@ -167,13 +174,19 @@ export class MatchLoggerComponent {
         rating -= 0.5; // Loss
       }
 
-      // Goals scored by this player
-      const goalsScored = this.goalsTimeline.filter(g => g.player_id === p.id).length;
+      // Goals scored by this player (excluding own goals)
+      const goalsScored = this.goalsTimeline.filter(g => g.player_id === p.id && g.event_type === 'goal').length;
       if (goalsScored > 0) {
         if (p.preferred_position === 'FW') rating += (goalsScored * 0.4);
         else if (p.preferred_position === 'MF') rating += (goalsScored * 0.5);
         else if (p.preferred_position === 'DF') rating += (goalsScored * 0.6);
         else if (p.preferred_position === 'GK') rating += (goalsScored * 1.0);
+      }
+
+      // Own goals penalty
+      const ownGoals = this.goalsTimeline.filter(g => g.player_id === p.id && g.event_type === 'own_goal').length;
+      if (ownGoals > 0) {
+        rating -= (ownGoals * 0.1);
       }
 
       // Assists by this player (future proofing)
@@ -284,7 +297,7 @@ export class MatchLoggerComponent {
 
     // Formulate database events
     const eventsData: Omit<MatchEvent, 'match_id'>[] = this.goalsTimeline.map(goal => ({
-      event_type: 'goal',
+      event_type: goal.event_type,
       minute: goal.minute || (goal.time_str && goal.time_str.includes(':') ? parseInt(goal.time_str.split(':')[0], 10) : parseInt(goal.time_str || '0', 10)),
       time_str: goal.time_str,
       player_id: goal.player_id,

@@ -28,7 +28,8 @@ import {
   InfoCircleOutline, 
   FilterOutline,
   UndoOutline,
-  FileTextOutline
+  FileTextOutline,
+  ShareAltOutline
 } from '@ant-design/icons-angular/icons';
 
 registerLocaleData(es);
@@ -52,7 +53,8 @@ const icons: IconDefinition[] = [
   InfoCircleOutline, 
   FilterOutline,
   UndoOutline,
-  FileTextOutline
+  FileTextOutline,
+  ShareAltOutline
 ];
 
 export const appConfig: ApplicationConfig = {
