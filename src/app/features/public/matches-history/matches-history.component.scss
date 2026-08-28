@@ -494,6 +494,34 @@ $team-colors: (
       gap: var(--spacing-md);
       font-size: 0.9rem;
 
+      &.edit-goal-item {
+        gap: 8px;
+        padding: 4px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+
+        @media (max-width: 576px) {
+          flex-wrap: wrap;
+          gap: 6px;
+          padding: 8px 4px;
+          background: rgba(255, 255, 255, 0.01);
+          border-radius: 4px;
+
+          .goal-time {
+            width: auto;
+          }
+
+          .goal-description {
+            // flex: 1 1 100% !important;
+            display: flex;
+            gap: 6px !important;
+          }
+
+          .goal-actions {
+            margin-left: auto;
+          }
+        }
+      }
+
       .goal-time {
         width: 35px;
         font-weight: 800;
@@ -561,5 +589,63 @@ $team-colors: (
     background-color: rgba(255, 255, 255, 0.1) !important;
     border-color: rgba(255, 255, 255, 0.2) !important;
     color: #fff !important;
+  }
+}
+
+/* Mobile responsive modal adjustments */
+::ng-deep .dark-modal {
+  @media (max-width: 768px) {
+    max-width: 96vw !important;
+    margin: 8px auto !important;
+
+    .ant-modal-content {
+      padding: 14px !important;
+    }
+
+    .ant-modal-body {
+      padding: 8px 0 !important;
+      max-height: 78vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .ant-modal-footer {
+      padding: 10px 0 0 0 !important;
+      flex-direction: column-reverse;
+      gap: 10px;
+
+      &>div {
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .lineup-row {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    padding: 8px 6px !important;
+  }
+
+  .add-player-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+
+    nz-select,
+    button {
+      width: 100% !important;
+    }
+  }
+
+  .add-goal-form {
+    flex-direction: column !important;
+
+    nz-input-number,
+    nz-select,
+    button {
+      width: 100% !important;
+    }
   }
 }

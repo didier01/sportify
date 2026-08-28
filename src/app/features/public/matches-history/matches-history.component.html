@@ -228,25 +228,25 @@
         <ng-container *ngIf="isEditMode">
           <nz-divider nzText="Gestionar Goles (Edición)"></nz-divider>
 
-          <div nz-row [nzGutter]="24" class="goals-timeline-container" *ngIf="editGoals.length > 0">
+          <div nz-row [nzGutter]="[16, 16]" class="goals-timeline-container" *ngIf="editGoals.length > 0">
             <!-- Team A Goals -->
-            <div nz-col [nzXs]="12">
-              <h4 class="timeline-team-title" [ngClass]="'team-' + (details.match.team_a_color ? details.match.team_a_color.toLowerCase() : 'verde')">Goles {{ details.match.team_a_color || 'Verde' }}</h4>
+            <div nz-col [nzXs]="24" [nzSm]="12">
+              <h4 class="timeline-team-title" [ngClass]="'team-' + (isEditMode ? editTeamAColor.toLowerCase() : (details.match.team_a_color ? details.match.team_a_color.toLowerCase() : 'verde'))">Goles {{ isEditMode ? editTeamAColor : (details.match.team_a_color || 'Verde') }}</h4>
               <div class="goals-timeline-list">
                 <ng-container *ngFor="let goal of editGoals; let i = index">
                   <div class="timeline-goal-item edit-goal-item" *ngIf="goal.team === 'A'">
                     <div class="goal-time">
                       <nz-input-number [(ngModel)]="goal.minute" [nzMin]="0" nzSize="small"
-                        style="width: 50px;"></nz-input-number>
+                        style="width: 48px;"></nz-input-number>
                     </div>
-                    <div class="goal-description" style="display: flex; gap: 10px; flex: 1;">
+                    <div class="goal-description" style="display: flex; gap: 8px; flex: 1;">
                       <nz-select [(ngModel)]="goal.scorerId" (ngModelChange)="updateGoal(goal)" nzSize="small"
-                        nzShowSearch nzPlaceHolder="Autor" style="flex: 1;">
+                        nzShowSearch nzPlaceHolder="Autor" style="flex: 1; min-width: 100px;">
                         <nz-option *ngFor="let item of editTeamA" [nzValue]="item.player.id"
                           [nzLabel]="item.player.nickname"></nz-option>
                       </nz-select>
                       <nz-select [(ngModel)]="goal.assistantId" (ngModelChange)="updateGoal(goal)" nzSize="small"
-                        nzShowSearch nzAllowClear nzPlaceHolder="Asist" style="flex: 1;">
+                        nzShowSearch nzAllowClear nzPlaceHolder="Asist" style="flex: 1; min-width: 100px;">
                         <nz-option [nzValue]="null" nzLabel="-- Ninguno --"></nz-option>
                         <nz-option *ngFor="let item of editTeamA" [nzValue]="item.player.id"
                           [nzLabel]="item.player.nickname"></nz-option>
@@ -263,23 +263,23 @@
             </div>
 
             <!-- Team B Goals -->
-            <div nz-col [nzXs]="12">
-              <h4 class="timeline-team-title" [ngClass]="'team-' + (details.match.team_b_color ? details.match.team_b_color.toLowerCase() : 'naranja')">Goles {{ details.match.team_b_color || 'Naranja' }}</h4>
+            <div nz-col [nzXs]="24" [nzSm]="12">
+              <h4 class="timeline-team-title" [ngClass]="'team-' + (isEditMode ? editTeamBColor.toLowerCase() : (details.match.team_b_color ? details.match.team_b_color.toLowerCase() : 'naranja'))">Goles {{ isEditMode ? editTeamBColor : (details.match.team_b_color || 'Naranja') }}</h4>
               <div class="goals-timeline-list">
                 <ng-container *ngFor="let goal of editGoals; let i = index">
                   <div class="timeline-goal-item edit-goal-item" *ngIf="goal.team === 'B'">
                     <div class="goal-time">
                       <nz-input-number [(ngModel)]="goal.minute" [nzMin]="0" nzSize="small"
-                        style="width: 50px;"></nz-input-number>
+                        style="width: 48px;"></nz-input-number>
                     </div>
-                    <div class="goal-description" style="display: flex; gap: 10px; flex: 1;">
+                    <div class="goal-description" style="display: flex; gap: 8px; flex: 1;">
                       <nz-select [(ngModel)]="goal.scorerId" (ngModelChange)="updateGoal(goal)" nzSize="small"
-                        nzShowSearch nzPlaceHolder="Autor" style="flex: 1;">
+                        nzShowSearch nzPlaceHolder="Autor" style="flex: 1; min-width: 100px;">
                         <nz-option *ngFor="let item of editTeamB" [nzValue]="item.player.id"
                           [nzLabel]="item.player.nickname"></nz-option>
                       </nz-select>
                       <nz-select [(ngModel)]="goal.assistantId" (ngModelChange)="updateGoal(goal)" nzSize="small"
-                        nzShowSearch nzAllowClear nzPlaceHolder="Asist" style="flex: 1;">
+                        nzShowSearch nzAllowClear nzPlaceHolder="Asist" style="flex: 1; min-width: 100px;">
                         <nz-option [nzValue]="null" nzLabel="-- Ninguno --"></nz-option>
                         <nz-option *ngFor="let item of editTeamB" [nzValue]="item.player.id"
                           [nzLabel]="item.player.nickname"></nz-option>
