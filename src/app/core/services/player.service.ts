@@ -22,6 +22,7 @@ export interface PlayerStats {
   is_deleted?: boolean;
   matches_played: number;
   goals: number;
+  own_goals: number;
   assists: number;
   win_rate: number;
   average_rating: number;
@@ -141,6 +142,7 @@ export class PlayerService {
           is_deleted: player.is_deleted,
           matches_played: 0,
           goals: 0,
+          own_goals: 0,
           assists: 0,
           win_rate: 0,
           average_rating: player.base_rating,
@@ -157,6 +159,7 @@ export class PlayerService {
         const matchIds = new Set(parts.map((p: any) => p.match_id));
 
         const goals = events.filter((e: any) => e.event_type === 'goal' && e.player_id === player.id && matchIds.has(e.match_id)).length;
+        const own_goals = events.filter((e: any) => e.event_type === 'own_goal' && e.player_id === player.id && matchIds.has(e.match_id)).length;
         const assists = events.filter((e: any) => e.event_type === 'goal' && e.assistant_id === player.id && matchIds.has(e.match_id)).length;
 
         const ratings = parts.map((mp: any) => mp.match_rating).filter((r: any) => r !== undefined && r !== null);
@@ -182,6 +185,7 @@ export class PlayerService {
           is_deleted: player.is_deleted,
           matches_played: matchesPlayed,
           goals,
+          own_goals,
           assists,
           win_rate: parseFloat(winRate.toFixed(1)),
           average_rating: parseFloat(averageRating.toFixed(2)),

@@ -158,6 +158,7 @@ export class PlayersListComponent implements OnInit {
       const specificStats: PlayerStats[] = players.map(mp => {
         const pInfo = allPlayers.find(p => p.id === mp.player_id);
         const goals = events.filter(e => e.event_type === 'goal' && e.player_id === mp.player_id).length;
+        const own_goals = events.filter(e => e.event_type === 'own_goal' && e.player_id === mp.player_id).length;
         const assists = events.filter(e => e.event_type === 'goal' && e.assistant_id === mp.player_id).length;
 
         let wins = 0, losses = 0, draws = 0;
@@ -176,6 +177,7 @@ export class PlayersListComponent implements OnInit {
           preferred_position: pInfo?.preferred_position || 'MF',
           matches_played: 1,
           goals,
+          own_goals,
           assists,
           average_rating: mp.match_rating || 6.0,
           base_rating: pInfo?.base_rating || 6.0,

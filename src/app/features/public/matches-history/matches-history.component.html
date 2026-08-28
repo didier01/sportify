@@ -144,6 +144,7 @@
                   <span class="stats">
                     <span class="stat-item" *ngIf="item.goals > 0">⚽ x{{ item.goals }}</span>
                     <span class="stat-item" *ngIf="item.assists > 0">👟 x{{ item.assists }}</span>
+                    <span class="stat-item" *ngIf="item.own_goals > 0" style="color: var(--error-color);">(Autogol) x{{ item.own_goals }}</span>
                   </span>
 
                   <span class="rating" *ngIf="!isEditMode">★ {{ item.rating.toFixed(1) }}</span>
@@ -167,6 +168,7 @@
                   <span class="stats">
                     <span class="stat-item" *ngIf="item.goals > 0">⚽ x{{ item.goals }}</span>
                     <span class="stat-item" *ngIf="item.assists > 0">👟 x{{ item.assists }}</span>
+                    <span class="stat-item" *ngIf="item.own_goals > 0" style="color: var(--error-color);">(Autogol) x{{ item.own_goals }}</span>
                   </span>
 
                   <span class="rating" *ngIf="!isEditMode">★ {{ item.rating.toFixed(1) }}</span>

@@ -20,8 +20,8 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 
 interface MatchDetails {
   match: Match;
-  teamA: { player: Player; rating: number; isMvp: boolean; goals: number; assists: number; }[];
-  teamB: { player: Player; rating: number; isMvp: boolean; goals: number; assists: number; }[];
+  teamA: { player: Player; rating: number; isMvp: boolean; goals: number; own_goals: number; assists: number; }[];
+  teamB: { player: Player; rating: number; isMvp: boolean; goals: number; own_goals: number; assists: number; }[];
   goals: { minute: number; scorerId?: string; assistantId?: string | null; scorer?: string; assistant?: string; team?: 'A' | 'B' }[];
   mvpNickname?: string;
 }
@@ -103,8 +103,8 @@ export class MatchesHistoryComponent {
   editScoreB = 0;
   editTeamAColor = 'Verde';
   editTeamBColor = 'Naranja';
-  editTeamA: { player: Player; rating: number; isMvp: boolean; goals: number; assists: number; }[] = [];
-  editTeamB: { player: Player; rating: number; isMvp: boolean; goals: number; assists: number; }[] = [];
+  editTeamA: { player: Player; rating: number; isMvp: boolean; goals: number; own_goals: number; assists: number; }[] = [];
+  editTeamB: { player: Player; rating: number; isMvp: boolean; goals: number; own_goals: number; assists: number; }[] = [];
   editGoals: { id?: string; minute: number; scorerId: string; assistantId?: string | null; scorer?: string; assistant?: string; team?: 'A' | 'B' }[] = [];
 
   // Add goal form
@@ -267,13 +267,14 @@ export class MatchesHistoryComponent {
       const mvpPlayer = allPlayers.find(p => p.id === mvpPlayerId);
 
       // Separate teams and count goals/assists
-      const teamA: { player: Player; rating: number; isMvp: boolean; goals: number; assists: number; }[] = [];
-      const teamB: { player: Player; rating: number; isMvp: boolean; goals: number; assists: number; }[] = [];
+      const teamA: { player: Player; rating: number; isMvp: boolean; goals: number; own_goals: number; assists: number; }[] = [];
+      const teamB: { player: Player; rating: number; isMvp: boolean; goals: number; own_goals: number; assists: number; }[] = [];
 
       players.forEach(mp => {
         const player = allPlayers.find(p => p.id === mp.player_id);
         if (player) {
           const goalsCount = events.filter(e => e.event_type === 'goal' && e.player_id === player.id).length;
+          const ownGoalsCount = events.filter(e => e.event_type === 'own_goal' && e.player_id === player.id).length;
           const assistsCount = events.filter(e => e.event_type === 'goal' && e.assistant_id === player.id).length;
 
           const item = {
@@ -281,6 +282,7 @@ export class MatchesHistoryComponent {
             rating: mp.match_rating || 6.0,
             isMvp: player.id === mvpPlayerId,
             goals: goalsCount,
+            own_goals: ownGoalsCount,
             assists: assistsCount
           };
           if (mp.team === 'A') teamA.push(item);

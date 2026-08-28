@@ -152,7 +152,18 @@
       <nz-card nzTitle="Registro de Goles" class="timeline-card">
         <div class="timeline-list">
           <div *ngFor="let goal of goalsTimeline; let idx = index" class="goal-event-row">
-            <span class="goal-badge">Gol #{{ idx + 1 }}</span>
+            <span class="goal-badge">Evento #{{ idx + 1 }}</span>
+
+            <div class="event-type-select" style="margin-left: 8px; margin-right: 8px;">
+              <nz-select 
+                [(ngModel)]="goal.event_type" 
+                (ngModelChange)="calculateScores(); calculateRatings()"
+                style="width: 90px;"
+              >
+                <nz-option nzValue="goal" nzLabel="Gol"></nz-option>
+                <nz-option nzValue="own_goal" nzLabel="Autogol"></nz-option>
+              </nz-select>
+            </div>
 
             <div class="minute-input">
               <input 
@@ -178,9 +189,9 @@
               </nz-select>
             </div>
 
-            <span class="assistant-label">Asistencia:</span>
+            <span class="assistant-label" *ngIf="goal.event_type === 'goal'">Asistencia:</span>
 
-            <div class="player-select">
+            <div class="player-select" *ngIf="goal.event_type === 'goal'">
               <nz-select 
                 [(ngModel)]="goal.assistant_id" 
                 nzPlaceHolder="Ninguna" 

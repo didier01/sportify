@@ -25,7 +25,7 @@ export interface MatchPlayer {
 export interface MatchEvent {
   id?: string;
   match_id?: string;
-  event_type: 'goal' | 'card_yellow' | 'card_red' | 'mvp';
+  event_type: 'goal' | 'own_goal' | 'card_yellow' | 'card_red' | 'mvp';
   minute?: number;
   time_str?: string;
   player_id: string;
@@ -302,10 +302,10 @@ export class MatchService {
 
     const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     
-    // Check if it's the current player-grouped format by scanning for "Name (X goles):" or just "Name:"
+    // Check if it's the current player-grouped format by scanning for "Name (X goles):", "Name (X autogoles):", or just "Name:"
     const isPlayerGroupedFormat = lines.some(line => {
       const cleanLine = line.replace(/^[^a-zA-ZÀ-ÿ0-9]+/, '').trim();
-      return /^([A-Za-zÀ-ÿ0-9\s]+)(?:\s*\(\d+\s*gol(?:es)?\))?\s*:\s*([0-9:,\-\s]+)$/i.test(cleanLine);
+      return /^([A-Za-zÀ-ÿ0-9\s]+)(?:\s*\(\d+\s*(?:gol(?:es)?|autogol(?:es)?)\))?\s*:\s*([0-9:,\-\s]+)$/i.test(cleanLine);
     });
 
     if (isPlayerGroupedFormat) {
@@ -324,12 +324,14 @@ export class MatchService {
           continue;
         }
 
-        // Match player goals line: "Solarte (7 goles): 05:57, 08:30" or "Solarte: 05:57 - 08:30"
+        // Match player goals line: "Solarte (7 goles): 05:57, 08:30", "Solarte (1 autogol): 10:00" or "Solarte: 05:57 - 08:30"
         const cleanLine = line.replace(/^[^a-zA-ZÀ-ÿ0-9]+/, '').trim();
-        const match = cleanLine.match(/^([A-Za-zÀ-ÿ0-9\s]+)(?:\s*\(\d+\s*gol(?:es)?\))?\s*:\s*([0-9:,\-\s]+)$/i);
+        const match = cleanLine.match(/^([A-Za-zÀ-ÿ0-9\s]+)(?:\s*\(\d+\s*(gol|goles|autogol|autogoles)\))?\s*:\s*([0-9:,\-\s]+)$/i);
         if (match) {
           const nickname = match[1].trim();
-          const timesStr = match[2];
+          const goalTypeWord = match[2] ? match[2].toLowerCase() : 'gol';
+          const isOwnGoal = goalTypeWord.includes('autogol');
+          const timesStr = match[3];
 
           // Find player in db list
           const player = playersList.find(p => p.nickname.toLowerCase() === nickname.toLowerCase());
@@ -351,15 +353,20 @@ export class MatchService {
               }
 
               events.push({
-                event_type: 'goal',
+                event_type: isOwnGoal ? 'own_goal' : 'goal',
                 minute,
                 time_str: timeStr,
                 player_id: player.id,
                 assistant_id: null
               });
 
-              if (currentTeam === 'A') scoreA++;
-              else scoreB++;
+              if (isOwnGoal) {
+                if (currentTeam === 'A') scoreB++;
+                else scoreA++;
+              } else {
+                if (currentTeam === 'A') scoreA++;
+                else scoreB++;
+              }
             });
           }
         }
