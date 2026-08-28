@@ -163,7 +163,8 @@ export class PlayerService {
         const assists = events.filter((e: any) => e.event_type === 'goal' && e.assistant_id === player.id && matchIds.has(e.match_id)).length;
 
         const ratings = parts.map((mp: any) => mp.match_rating).filter((r: any) => r !== undefined && r !== null);
-        const averageRating = ratings.length > 0 ? ratings.reduce((sum: number, r: number) => sum + r, 0) / ratings.length : player.base_rating;
+        const roleBaseRating = role === 'GK' ? player.base_rating : (player.preferred_position === 'GK' ? 6.0 : player.base_rating);
+        const averageRating = ratings.length > 0 ? ratings.reduce((sum: number, r: number) => sum + r, 0) / ratings.length : roleBaseRating;
 
         let wins = 0;
         parts.forEach((mp: any) => {
@@ -180,7 +181,7 @@ export class PlayerService {
           name: player.name || '',
           nickname: player.nickname,
           preferred_position: player.preferred_position,
-          base_rating: player.base_rating,
+          base_rating: roleBaseRating,
           is_active: player.is_active,
           is_deleted: player.is_deleted,
           matches_played: matchesPlayed,

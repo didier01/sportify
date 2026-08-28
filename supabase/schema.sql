@@ -73,8 +73,11 @@ select
       when mp.team = 'B' and m.team_b_score > m.team_a_score then m.id 
      end)::float / nullif(count(distinct mp.match_id), 0) * 100), 0
   ) as win_rate,
-  -- Rating Promedio en partidos (si no hay calificaciones de partido, usar el base_rating)
-  coalesce(avg(mp.match_rating), p.base_rating) as average_rating
+  -- Rating Promedio en partidos (si no hay calificaciones de partido, usar el base_rating o 6.0 si es GK jugando de campo)
+  coalesce(
+    avg(mp.match_rating), 
+    case when p.preferred_position = 'GK' and coalesce(mp.is_gk, false) = false then 6.0 else p.base_rating end
+  ) as average_rating
 from players p
 left join match_players mp on mp.player_id = p.id
 left join matches m on m.id = mp.match_id

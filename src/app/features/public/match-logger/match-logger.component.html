@@ -114,6 +114,7 @@
                 nz-checkbox 
                 *ngIf="item.played"
                 [(ngModel)]="item.is_gk"
+                (ngModelChange)="calculateScores()"
               >🧤</label>
               <span *ngIf="!item.played" class="inactive-placeholder">-</span>
             </div>

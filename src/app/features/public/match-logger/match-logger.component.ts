@@ -87,13 +87,17 @@ export class MatchLoggerComponent {
 
   private initRoster(): void {
     const list = this.players().filter(p => p.is_active);
-    this.roster = list.map(player => ({
-      player,
-      played: false,
-      is_gk: false,
-      team: 'A',
-      rating: 6.0
-    }));
+    this.roster = list.map(player => {
+      const isGK = false;
+      const baseRating = isGK ? player.base_rating : (player.preferred_position === 'GK' ? 6.0 : player.base_rating);
+      return {
+        player,
+        played: false,
+        is_gk: isGK,
+        team: 'A',
+        rating: Math.round(((baseRating * 0.4) + 3.5) * 10) / 10
+      };
+    });
   }
 
   // Parse notes and pre-populate roster and goals timeline
@@ -158,9 +162,13 @@ export class MatchLoggerComponent {
   calculateRatings(): void {
     this.roster.filter(r => r.played).forEach(item => {
       const p = item.player;
+      const isGK = !!item.is_gk;
+
+      // Base Rating: Si es arquero pero juega de campo, toma 6.0 estándar en vez de su rating de arquero (ej. 9.0)
+      const baseRating = isGK ? p.base_rating : (p.preferred_position === 'GK' ? 6.0 : p.base_rating);
       
       // A. Nota Inicial: (Base Rating * 0.4) + 3.5
-      let rating = (p.base_rating * 0.4) + 3.5;
+      let rating = (baseRating * 0.4) + 3.5;
       
       // B. Impacto de Partido (Ataque y Resultado)
       const isTeamA = item.team === 'A';
@@ -174,13 +182,16 @@ export class MatchLoggerComponent {
         rating -= 0.5; // Loss
       }
 
+      // Posición efectiva en el partido para multiplicadores
+      const effectivePos = isGK ? 'GK' : (p.preferred_position === 'GK' ? 'MF' : p.preferred_position);
+
       // Goals scored by this player (excluding own goals)
       const goalsScored = this.goalsTimeline.filter(g => g.player_id === p.id && g.event_type === 'goal').length;
       if (goalsScored > 0) {
-        if (p.preferred_position === 'FW') rating += (goalsScored * 0.4);
-        else if (p.preferred_position === 'MF') rating += (goalsScored * 0.5);
-        else if (p.preferred_position === 'DF') rating += (goalsScored * 0.6);
-        else if (p.preferred_position === 'GK') rating += (goalsScored * 1.0);
+        if (effectivePos === 'FW') rating += (goalsScored * 0.4);
+        else if (effectivePos === 'MF') rating += (goalsScored * 0.5);
+        else if (effectivePos === 'DF') rating += (goalsScored * 0.6);
+        else if (effectivePos === 'GK') rating += (goalsScored * 1.0);
       }
 
       // Own goals penalty
@@ -189,20 +200,20 @@ export class MatchLoggerComponent {
         rating -= (ownGoals * 0.1);
       }
 
-      // Assists by this player (future proofing)
+      // Assists by this player
       const assistsMade = this.goalsTimeline.filter(g => g.assistant_id === p.id).length;
       if (assistsMade > 0) {
-        if (p.preferred_position === 'FW' || p.preferred_position === 'MF') rating += (assistsMade * 0.3);
-        else if (p.preferred_position === 'DF' || p.preferred_position === 'GK') rating += (assistsMade * 0.4);
+        if (effectivePos === 'FW' || effectivePos === 'MF') rating += (assistsMade * 0.3);
+        else if (effectivePos === 'DF' || effectivePos === 'GK') rating += (assistsMade * 0.4);
       }
 
       // C. Impacto Defensivo (Goles recibidos por el equipo)
       if (enemyTeamScore > 0) {
         let penaltyPerGoal = 0;
-        if (p.preferred_position === 'GK') penaltyPerGoal = 0.15;
-        else if (p.preferred_position === 'DF') penaltyPerGoal = 0.12;
-        else if (p.preferred_position === 'MF') penaltyPerGoal = 0.10;
-        else if (p.preferred_position === 'FW') penaltyPerGoal = 0.08;
+        if (effectivePos === 'GK') penaltyPerGoal = 0.15;
+        else if (effectivePos === 'DF') penaltyPerGoal = 0.12;
+        else if (effectivePos === 'MF') penaltyPerGoal = 0.10;
+        else if (effectivePos === 'FW') penaltyPerGoal = 0.08;
         
         let defensivePenalty = enemyTeamScore * penaltyPerGoal;
         
