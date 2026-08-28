@@ -19,11 +19,12 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 
 interface MatchDetails {
   match: Match;
-  teamA: { player: Player; rating: number; isMvp: boolean; goals: number; own_goals: number; assists: number; }[];
-  teamB: { player: Player; rating: number; isMvp: boolean; goals: number; own_goals: number; assists: number; }[];
+  teamA: { player: Player; rating: number; isMvp: boolean; is_gk?: boolean; goals: number; own_goals: number; assists: number; }[];
+  teamB: { player: Player; rating: number; isMvp: boolean; is_gk?: boolean; goals: number; own_goals: number; assists: number; }[];
   goals: { minute: number; scorerId?: string; assistantId?: string | null; scorer?: string; assistant?: string; team?: 'A' | 'B' }[];
   mvpNickname?: string;
 }
@@ -45,7 +46,8 @@ interface MatchDetails {
     NzPopconfirmModule,
     NzButtonModule,
     NzSelectModule,
-    NzTooltipModule
+    NzTooltipModule,
+    NzCheckboxModule
   ],
   templateUrl: './matches-history.component.html',
   styleUrls: ['./matches-history.component.scss']
@@ -140,9 +142,13 @@ export class MatchesHistoryComponent implements OnInit {
   editScoreB = 0;
   editTeamAColor = 'Verde';
   editTeamBColor = 'Naranja';
-  editTeamA: { player: Player; rating: number; isMvp: boolean; goals: number; own_goals: number; assists: number; }[] = [];
-  editTeamB: { player: Player; rating: number; isMvp: boolean; goals: number; own_goals: number; assists: number; }[] = [];
+  editTeamA: { player: Player; rating: number; isMvp: boolean; is_gk?: boolean; goals: number; own_goals: number; assists: number; }[] = [];
+  editTeamB: { player: Player; rating: number; isMvp: boolean; is_gk?: boolean; goals: number; own_goals: number; assists: number; }[] = [];
   editGoals: { id?: string; minute: number; scorerId: string; assistantId?: string | null; scorer?: string; assistant?: string; team?: 'A' | 'B' }[] = [];
+
+  // Add player in edit mode
+  newPlayerToAddId: string | null = null;
+  newPlayerTeam: 'A' | 'B' = 'A';
 
   // Add goal form
   newGoalMinute: number | null = null;
@@ -202,7 +208,78 @@ export class MatchesHistoryComponent implements OnInit {
       this.editTeamA = details.teamA.map(p => ({ ...p }));
       this.editTeamB = details.teamB.map(p => ({ ...p }));
       this.editGoals = details.goals.map((g: any) => ({ ...g }));
+      this.newPlayerToAddId = null;
+      this.newPlayerTeam = 'A';
     }
+  }
+
+  movePlayerToTeamB(index: number): void {
+    const [item] = this.editTeamA.splice(index, 1);
+    if (item) {
+      this.editTeamB.push(item);
+      this.editGoals.forEach(g => {
+        if (g.scorerId === item.player.id) {
+          g.team = 'B';
+        }
+      });
+      this.msg.info(`${item.player.nickname} movido a Equipo ${this.editTeamBColor}`);
+    }
+  }
+
+  movePlayerToTeamA(index: number): void {
+    const [item] = this.editTeamB.splice(index, 1);
+    if (item) {
+      this.editTeamA.push(item);
+      this.editGoals.forEach(g => {
+        if (g.scorerId === item.player.id) {
+          g.team = 'A';
+        }
+      });
+      this.msg.info(`${item.player.nickname} movido a Equipo ${this.editTeamAColor}`);
+    }
+  }
+
+  removePlayerFromMatch(team: 'A' | 'B', index: number): void {
+    const list = team === 'A' ? this.editTeamA : this.editTeamB;
+    const [removed] = list.splice(index, 1);
+    if (removed) {
+      this.msg.info(`${removed.player.nickname} removido de la plantilla`);
+    }
+  }
+
+  addPlayerToRoster(): void {
+    if (!this.newPlayerToAddId) {
+      this.msg.warning('Selecciona un jugador para agregar');
+      return;
+    }
+
+    const player = this.allPlayersList().find(p => p.id === this.newPlayerToAddId);
+    if (!player) return;
+
+    const exists = [...this.editTeamA, ...this.editTeamB].some(t => t.player.id === player.id);
+    if (exists) {
+      this.msg.warning('Este jugador ya está convocado en este partido');
+      return;
+    }
+
+    const newItem = {
+      player,
+      rating: Math.round(((player.base_rating * 0.4) + 3.5) * 10) / 10,
+      isMvp: false,
+      is_gk: player.preferred_position === 'GK',
+      goals: 0,
+      own_goals: 0,
+      assists: 0
+    };
+
+    if (this.newPlayerTeam === 'A') {
+      this.editTeamA.push(newItem);
+    } else {
+      this.editTeamB.push(newItem);
+    }
+
+    this.msg.success(`${player.nickname} agregado a Equipo ${this.newPlayerTeam === 'A' ? this.editTeamAColor : this.editTeamBColor}`);
+    this.newPlayerToAddId = null;
   }
 
   async saveEdits(): Promise<void> {
@@ -225,7 +302,8 @@ export class MatchesHistoryComponent implements OnInit {
           match_id: details.match.id,
           player_id: item.player.id,
           team: 'A',
-          match_rating: item.rating
+          match_rating: item.rating,
+          is_gk: !!item.is_gk
         });
       });
       this.editTeamB.forEach(item => {
@@ -233,7 +311,8 @@ export class MatchesHistoryComponent implements OnInit {
           match_id: details.match.id,
           player_id: item.player.id,
           team: 'B',
-          match_rating: item.rating
+          match_rating: item.rating,
+          is_gk: !!item.is_gk
         });
       });
 
@@ -344,6 +423,7 @@ export class MatchesHistoryComponent implements OnInit {
             player,
             rating: mp.match_rating || 6.0,
             isMvp: player.id === mvpPlayerId,
+            is_gk: !!mp.is_gk,
             goals: goalsCount,
             own_goals: ownGoalsCount,
             assists: assistsCount

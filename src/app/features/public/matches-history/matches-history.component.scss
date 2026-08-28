@@ -355,6 +355,33 @@ $team-colors: (
       .name {
         flex: 1;
         font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        .gk-badge {
+          font-size: 0.65rem;
+          background: rgba(234, 179, 8, 0.2);
+          color: #facc15;
+          padding: 1px 5px;
+          border-radius: 4px;
+          font-weight: 700;
+        }
+      }
+
+      .btn-swap-team {
+        font-size: 0.72rem;
+        padding: 0 6px;
+        height: 24px;
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.15);
+        color: var(--text-main);
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.12);
+          border-color: var(--primary-color);
+          color: var(--primary-color);
+        }
       }
 
       .pos-badge {

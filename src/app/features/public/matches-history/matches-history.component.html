@@ -73,7 +73,7 @@
     </div>
 
   <!-- Match details Modal -->
-  <nz-modal [(nzVisible)]="isModalVisible" nzTitle="Ficha del Partido" (nzOnCancel)="handleCloseModal()" nzWidth="720px"
+  <nz-modal [(nzVisible)]="isModalVisible" nzTitle="Ficha del Partido" (nzOnCancel)="handleCloseModal()" [nzWidth]="isEditMode ? '860px' : '720px'"
     nzClassName="dark-modal">
     <div *nzModalContent>
       <div *ngIf="isLoadingDetails()" class="modal-loading">
@@ -136,23 +136,36 @@
         <div nz-row [nzGutter]="24">
           <!-- Team A Lineup -->
           <div nz-col [nzXs]="24" [nzSm]="12">
-            <div class="lineup-box" [ngClass]="'lineup-' + (details.match.team_a_color ? details.match.team_a_color.toLowerCase() : 'verde')">
-              <h4 class="lineup-title">Equipo {{ details.match.team_a_color || 'Verde' }}</h4>
+            <div class="lineup-box" [ngClass]="'lineup-' + (isEditMode ? editTeamAColor.toLowerCase() : (details.match.team_a_color ? details.match.team_a_color.toLowerCase() : 'verde'))">
+              <h4 class="lineup-title">Equipo {{ isEditMode ? editTeamAColor : (details.match.team_a_color || 'Verde') }}</h4>
               <div class="lineup-list">
-                <div class="lineup-row" *ngFor="let item of (isEditMode ? editTeamA : details.teamA)"
+                <div class="lineup-row" *ngFor="let item of (isEditMode ? editTeamA : details.teamA); let i = index"
                   [class.is-mvp]="item.isMvp">
-                  <span class="name">{{ item.player.nickname }}</span>
+                  <span class="name">
+                    {{ item.player.nickname }}
+                    <span *ngIf="!isEditMode && item.is_gk" class="gk-badge" title="Portero">🧤 POR</span>
+                  </span>
                   <span class="pos-badge">{{ item.player.preferred_position }}</span>
 
-                  <span class="stats">
+                  <span class="stats" *ngIf="!isEditMode">
                     <span class="stat-item" *ngIf="item.goals > 0">⚽ x{{ item.goals }}</span>
                     <span class="stat-item" *ngIf="item.assists > 0">👟 x{{ item.assists }}</span>
                     <span class="stat-item" *ngIf="item.own_goals > 0" style="color: var(--error-color);">(Autogol) x{{ item.own_goals }}</span>
                   </span>
 
+                  <!-- Edit Controls Team A -->
+                  <ng-container *ngIf="isEditMode">
+                    <label nz-checkbox [(ngModel)]="item.is_gk" nz-tooltip nzTooltipTitle="¿Fue Portero?">🧤</label>
+                    <nz-input-number [(ngModel)]="item.rating" [nzMin]="0" [nzMax]="10" [nzStep]="0.1" nzSize="small" style="width: 58px;"></nz-input-number>
+                    <button nz-button nzType="default" nzSize="small" nz-tooltip [nzTooltipTitle]="'Mover a ' + editTeamBColor" (click)="movePlayerToTeamB(i)" class="btn-swap-team">
+                      <nz-icon nzType="swap" nzTheme="outline"></nz-icon> {{ editTeamBColor }}
+                    </button>
+                    <button nz-button nzType="text" nzDanger nzSize="small" nz-tooltip nzTooltipTitle="Quitar de la lista" (click)="removePlayerFromMatch('A', i)">
+                      <nz-icon nzType="delete" nzTheme="outline"></nz-icon>
+                    </button>
+                  </ng-container>
+
                   <span class="rating" *ngIf="!isEditMode">★ {{ item.rating.toFixed(1) }}</span>
-                  <nz-input-number *ngIf="isEditMode" [(ngModel)]="item.rating" [nzMin]="0" [nzMax]="10"
-                    [nzStep]="0.1"></nz-input-number>
                 </div>
               </div>
             </div>
@@ -160,27 +173,55 @@
 
           <!-- Team B Lineup -->
           <div nz-col [nzXs]="24" [nzSm]="12">
-            <div class="lineup-box" [ngClass]="'lineup-' + (details.match.team_b_color ? details.match.team_b_color.toLowerCase() : 'naranja')">
-              <h4 class="lineup-title">Equipo {{ details.match.team_b_color || 'Naranja' }}</h4>
+            <div class="lineup-box" [ngClass]="'lineup-' + (isEditMode ? editTeamBColor.toLowerCase() : (details.match.team_b_color ? details.match.team_b_color.toLowerCase() : 'naranja'))">
+              <h4 class="lineup-title">Equipo {{ isEditMode ? editTeamBColor : (details.match.team_b_color || 'Naranja') }}</h4>
               <div class="lineup-list">
-                <div class="lineup-row" *ngFor="let item of (isEditMode ? editTeamB : details.teamB)"
+                <div class="lineup-row" *ngFor="let item of (isEditMode ? editTeamB : details.teamB); let i = index"
                   [class.is-mvp]="item.isMvp">
-                  <span class="name">{{ item.player.nickname }}</span>
+                  <span class="name">
+                    {{ item.player.nickname }}
+                    <span *ngIf="!isEditMode && item.is_gk" class="gk-badge" title="Portero">🧤 POR</span>
+                  </span>
                   <span class="pos-badge">{{ item.player.preferred_position }}</span>
 
-                  <span class="stats">
+                  <span class="stats" *ngIf="!isEditMode">
                     <span class="stat-item" *ngIf="item.goals > 0">⚽ x{{ item.goals }}</span>
                     <span class="stat-item" *ngIf="item.assists > 0">👟 x{{ item.assists }}</span>
                     <span class="stat-item" *ngIf="item.own_goals > 0" style="color: var(--error-color);">(Autogol) x{{ item.own_goals }}</span>
                   </span>
 
+                  <!-- Edit Controls Team B -->
+                  <ng-container *ngIf="isEditMode">
+                    <label nz-checkbox [(ngModel)]="item.is_gk" nz-tooltip nzTooltipTitle="¿Fue Portero?">🧤</label>
+                    <nz-input-number [(ngModel)]="item.rating" [nzMin]="0" [nzMax]="10" [nzStep]="0.1" nzSize="small" style="width: 58px;"></nz-input-number>
+                    <button nz-button nzType="default" nzSize="small" nz-tooltip [nzTooltipTitle]="'Mover a ' + editTeamAColor" (click)="movePlayerToTeamA(i)" class="btn-swap-team">
+                      <nz-icon nzType="swap" nzTheme="outline"></nz-icon> {{ editTeamAColor }}
+                    </button>
+                    <button nz-button nzType="text" nzDanger nzSize="small" nz-tooltip nzTooltipTitle="Quitar de la lista" (click)="removePlayerFromMatch('B', i)">
+                      <nz-icon nzType="delete" nzTheme="outline"></nz-icon>
+                    </button>
+                  </ng-container>
+
                   <span class="rating" *ngIf="!isEditMode">★ {{ item.rating.toFixed(1) }}</span>
-                  <nz-input-number *ngIf="isEditMode" [(ngModel)]="item.rating" [nzMin]="0" [nzMax]="10"
-                    [nzStep]="0.1"></nz-input-number>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Add Player in Edit Mode -->
+        <div *ngIf="isEditMode" class="add-player-row" style="margin-top: 14px; padding: 10px 14px; background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">+ Añadir a plantilla:</span>
+          <nz-select [(ngModel)]="newPlayerToAddId" nzPlaceHolder="Seleccionar jugador" nzShowSearch style="flex: 1; min-width: 140px;" nzSize="small">
+            <nz-option *ngFor="let p of allPlayersList()" [nzValue]="p.id" [nzLabel]="p.nickname"></nz-option>
+          </nz-select>
+          <nz-select [(ngModel)]="newPlayerTeam" style="width: 130px;" nzSize="small">
+            <nz-option nzValue="A" [nzLabel]="'Equipo ' + editTeamAColor"></nz-option>
+            <nz-option nzValue="B" [nzLabel]="'Equipo ' + editTeamBColor"></nz-option>
+          </nz-select>
+          <button nz-button nzType="primary" nzSize="small" (click)="addPlayerToRoster()">
+            <nz-icon nzType="user-add" nzTheme="outline"></nz-icon> Agregar
+          </button>
         </div>
 
         <!-- Solo visible en Modo Edición para poder eliminar goles específicos -->
