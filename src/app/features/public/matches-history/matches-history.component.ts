@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, effect } from '@angular/core';
+import { Component, computed, inject, signal, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatchService, Match, MatchPlayer, MatchEvent } from '../../../core/services/match.service';
@@ -50,13 +50,14 @@ interface MatchDetails {
   templateUrl: './matches-history.component.html',
   styleUrls: ['./matches-history.component.scss']
 })
-export class MatchesHistoryComponent {
+export class MatchesHistoryComponent implements OnInit {
   private matchService = inject(MatchService);
   private playerService = inject(PlayerService);
   private modal = inject(NzModalService);
   private msg = inject(NzMessageService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
   authService = inject(AuthService); // Inyectamos como public para el template
 
   // Expose matches list signal
@@ -64,24 +65,35 @@ export class MatchesHistoryComponent {
   allPlayersList = this.playerService.players;
   teamColors = ['Rojo', 'Amarillo', 'Azul', 'Verde', 'Rosado', 'Naranja', 'Blanco', 'Negro'];
 
-  constructor() {
-    effect(() => {
-      const matchId = this.route.snapshot.queryParamMap.get('matchId');
-      const allMatches = this.matches();
-      
-      // If matches are loaded and there's a matchId in URL
-      if (matchId && allMatches.length > 0 && !this.isModalVisible) {
-        const match = allMatches.find(m => m.id === matchId);
-        if (match) {
-          // Open details asynchronously to avoid effect constraints
-          setTimeout(() => {
-            this.openMatchDetails(match);
-            // Clear URL parameter so it doesn't reopen if the user closes the modal
-            this.router.navigate([], { queryParams: { matchId: null }, queryParamsHandling: 'merge' });
-          });
-        }
+  ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      const matchId = params['matchId'];
+      if (matchId) {
+        this.tryOpenMatch(matchId);
       }
     });
+  }
+
+  tryOpenMatch(matchId: string) {
+    if (this.isModalVisible) return;
+    
+    const allMatches = this.matches();
+    if (allMatches.length > 0) {
+      const match = allMatches.find(m => m.id === matchId);
+      if (match) {
+        // Limpiamos la URL sin disparar eventos del Router de Angular
+        const url = new URL(window.location.href);
+        url.searchParams.delete('matchId');
+        window.history.replaceState({}, '', url.toString());
+        
+        // Abrimos el modal y forzamos la detección de cambios
+        this.openMatchDetails(match);
+        this.cdr.detectChanges();
+      }
+    } else {
+      // Reintentar en 200ms si los partidos aún no cargan desde Supabase
+      setTimeout(() => this.tryOpenMatch(matchId), 200);
+    }
   }
 
   // Pagination & Grouping
@@ -149,13 +161,12 @@ export class MatchesHistoryComponent {
 
   async shareMatch(matchId: string, event: Event): Promise<void> {
     event.stopPropagation();
-    const url = `${window.location.origin}/historial?matchId=${matchId}`;
+    const url = `${window.location.origin}/matches?matchId=${matchId}`;
     
     if (navigator.share) {
       try {
         await navigator.share({
           title: 'Ficha de Partido - FutStats',
-          text: '¡Mira las estadísticas y el resumen de este partido!',
           url: url
         });
         // Si el usuario comparte exitosamente, no es necesario mostrar alerta
